@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Class Setup</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="active">🏫 Class Setup</a>
+    <a href="dashboard.html">📋 Dashboard</a>
+    <a href="schedule.html">⏰ Schedule</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+  <header><h1>📘 Add Classes</h1></header>
+  <main>
+    <form id="add-class-form">
+      <input type="text" id="class-name" placeholder="Class Name" required />
+      <input type="text" id="room-number" placeholder="Room Number" />
+      <input type="text" id="teacher-name" placeholder="Teacher Name" />
+      <input type="text" id="period" placeholder="Class Period" />
+      <button type="submit">Add Class</button>
+    </form>
+    <section id="class-list"></section>
+  </main>
+  <script src="js/classes.js"></script>
+</body>
+</html>

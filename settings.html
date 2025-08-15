@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings</title>
+  <link rel="stylesheet" href="css/settings.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">🏫 Class Setup</a>
+    <a href="dashboard.html">📋 Dashboard</a>
+    <a href="schedule.html">⏰ Schedule</a>
+    <a href="settings.html" class="active">⚙️ Settings</a>
+  </nav>
+  <div class="container">
+    <h1>⚙️ Settings</h1>
+
+    <section id="class-settings">
+      <h2>📚 Class Category Weights</h2>
+      <div class="class-controls">
+        <select id="weight-class-select"></select>
+        <button id="add-class-btn">➕ Add Class</button>
+      </div>
+      <div id="category-weights-form"></div>
+      <button id="save-weights-btn">💾 Save Weights</button>
+    </section>
+
+    <section id="schedule-settings">
+      <h2>⏰ Bell Schedules</h2>
+      <div id="schedule-container"></div>
+      <button id="add-schedule-btn">➕ Add Schedule</button>
+    </section>
+  </div>
+
+  <script src="js/settings.js"></script>
+</body>
+</html>

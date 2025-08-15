@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html">🏫 Class Setup</a>
+    <a href="dashboard.html" class="active">📋 Dashboard</a>
+    <a href="schedule.html">⏰ Schedule</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+
+  <header><h1>📋 Assignments</h1></header>
+
+  <main>
+    <form id="add-assignment-form">
+      <select id="class-select" required></select>
+      <input type="text" id="assignment-title" placeholder="Title" required />
+      <input type="url" id="assignment-link" placeholder="Link (optional)" />
+      <input type="date" id="due-date" required />
+      <select id="category" required></select>
+      <input type="number" id="points" placeholder="Point Value" required min="0" />
+      <button type="submit">Add Assignment</button>
+    </form>
+
+    <p style="margin-top: 1em; font-style: italic;">🗑️ You can delete assignments without affecting your grade.</p>
+
+    <div id="gpa-display">📊 Grade: Not calculated yet</div>
+    <section id="assignment-list"></section>
+  </main>
+
+  <script src="js/assignments.js"></script>
+  <script src="js/grades.js"></script>
+</body>
+</html>
