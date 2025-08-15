@@ -1,0 +1,71 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f4f4;
+  padding-top: 60px;
+}
+header {
+  text-align: center;
+  margin: 20px 0;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px;
+}
+input, select, button {
+  padding: 10px;
+  font-size: 1em;
+}
+.navbar {
+  background-color: #333;
+  padding: 10px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+.navbar a.active {
+  color: #ffeb3b;
+}
+.navbar a:hover {
+  text-decoration: underline;
+}
+.period {
+  padding: 10px;
+  margin: 5px 20px;
+  background: #ddd;
+}
+.period.active {
+  background: #ffeb3b;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+.assignment.missing {
+  background: #ffcccc;
+}
+.assignment.upcoming::before {
+  content: "⚠️ ";
+}
+.period-edit {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+#gpa-display {
+  margin: 20px;
+  font-weight: bold;
+}
