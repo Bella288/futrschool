@@ -1,5 +1,3 @@
-[file name]: assignments.js
-[file content begin]
 // DOM Elements
 const form = document.getElementById('add-assignment-form');
 const list = document.getElementById('assignment-list');
@@ -338,4 +336,3 @@ function getLetterGrade(percentage) {
   
   return "N/A"; // Percentage doesn't match any grade level
 }
-[file content end]
