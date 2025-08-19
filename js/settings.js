@@ -452,107 +452,142 @@ function deleteClass(index) {
 }
 
 // ========================
-// SCHEDULE FUNCTIONS
+// SCHEDULE FUNCTIONS (UPDATED)
 // ========================
 
 /**
- * Renders all schedules in the schedule container
+ * Renders all schedule periods in the schedule container
  */
-function renderSchedules() {
+function renderSchedule() {
   scheduleContainer.innerHTML = "";
-  const schedules = JSON.parse(localStorage.getItem("schedules")) || [];
+  const schedule = JSON.parse(localStorage.getItem("schedule")) || [];
 
-  schedules.forEach((schedule, index) => {
-    const card = document.createElement("div");
-    card.className = "schedule-card";
+  if (schedule.length === 0) {
+    scheduleContainer.innerHTML = "<p>No schedule periods defined. Add periods below.</p>";
+    return;
+  }
 
-    const nameDiv = document.createElement("div");
-    nameDiv.className = "schedule-field";
-    const nameLabel = document.createElement("label");
-    nameLabel.textContent = "Schedule Name:";
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.value = schedule.name;
-    nameInput.placeholder = "Schedule Name";
-    nameInput.addEventListener("change", () => {
-      schedule.name = nameInput.value.trim();
-      saveSchedules();
+  schedule.forEach((period, index) => {
+    const periodDiv = document.createElement("div");
+    periodDiv.className = "period-card";
+
+    periodDiv.innerHTML = `
+      <div class="period-field">
+        <label>Period Name:</label>
+        <input type="text" class="period-name" value="${period.name}" placeholder="e.g., Period 1" />
+      </div>
+      <div class="period-field">
+        <label>Start Time:</label>
+        <input type="time" class="period-start" value="${period.start}" />
+      </div>
+      <div class="period-field">
+        <label>End Time:</label>
+        <input type="time" class="period-end" value="${period.end}" />
+      </div>
+      <button class="remove-period-btn" data-index="${index}">🗑️ Remove</button>
+    `;
+
+    scheduleContainer.appendChild(periodDiv);
+  });
+
+  // Add event listeners to remove buttons
+  scheduleContainer.querySelectorAll(".remove-period-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const index = parseInt(btn.dataset.index);
+      removePeriod(index);
     });
-    nameDiv.appendChild(nameLabel);
-    nameDiv.appendChild(nameInput);
-
-    const daysDiv = document.createElement("div");
-    daysDiv.className = "schedule-field";
-    const daysLabel = document.createElement("label");
-    daysLabel.textContent = "Days (comma separated):";
-    const daysInput = document.createElement("input");
-    daysInput.type = "text";
-    daysInput.placeholder = "Mon,Tue,Wed,Thu,Fri";
-    daysInput.value = schedule.days.join(",");
-    daysInput.addEventListener("change", () => {
-      schedule.days = daysInput.value.split(",").map(d => d.trim()).filter(d => d);
-      saveSchedules();
-    });
-    daysDiv.appendChild(daysLabel);
-    daysDiv.appendChild(daysInput);
-
-    const periodsDiv = document.createElement("div");
-    periodsDiv.className = "schedule-field";
-    const periodsLabel = document.createElement("label");
-    periodsLabel.textContent = "Periods (comma separated):";
-    const periodsInput = document.createElement("input");
-    periodsInput.type = "text";
-    periodsInput.placeholder = "8:00-9:00,9:10-10:00";
-    periodsInput.value = schedule.periods.join(",");
-    periodsInput.addEventListener("change", () => {
-      schedule.periods = periodsInput.value.split(",").map(p => p.trim()).filter(p => p);
-      saveSchedules();
-    });
-    periodsDiv.appendChild(periodsLabel);
-    periodsDiv.appendChild(periodsInput);
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete Schedule";
-    deleteBtn.className = "delete-schedule-btn";
-    deleteBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to delete this schedule?")) {
-        schedules.splice(index, 1);
-        saveSchedules();
-        renderSchedules();
-      }
-    });
-
-    card.appendChild(nameDiv);
-    card.appendChild(daysDiv);
-    card.appendChild(periodsDiv);
-    card.appendChild(deleteBtn);
-    scheduleContainer.appendChild(card);
   });
 }
 
 /**
- * Saves all schedules to localStorage
+ * Adds a new period to the schedule
  */
-function saveSchedules() {
-  localStorage.setItem("schedules", JSON.stringify(schedules));
+function addNewPeriod() {
+  const schedule = JSON.parse(localStorage.getItem("schedule")) || [];
+  schedule.push({
+    name: `Period ${schedule.length + 1}`,
+    start: "08:00",
+    end: "09:00"
+  });
+  localStorage.setItem("schedule", JSON.stringify(schedule));
+  renderSchedule();
 }
 
 /**
- * Adds a new schedule template
+ * Removes a period from the schedule
+ * @param {number} index - The index of the period to remove
  */
-function addNewSchedule() {
-  const newSchedule = {
-    name: `Schedule ${schedules.length + 1}`,
-    days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-    periods: ["8:00-9:00", "9:10-10:00", "10:10-11:00", "11:10-12:00", "13:00-14:00", "14:10-15:00"]
-  };
-  schedules.push(newSchedule);
-  saveSchedules();
-  renderSchedules();
+function removePeriod(index) {
+  const schedule = JSON.parse(localStorage.getItem("schedule")) || [];
+  
+  if (index >= 0 && index < schedule.length) {
+    schedule.splice(index, 1);
+    localStorage.setItem("schedule", JSON.stringify(schedule));
+    renderSchedule();
+  }
+}
+
+/**
+ * Saves the schedule to localStorage
+ */
+function saveSchedule() {
+  const periodCards = scheduleContainer.querySelectorAll(".period-card");
+  const newSchedule = [];
+  let isValid = true;
+  let errorMessage = "";
+  
+  periodCards.forEach((card, index) => {
+    const name = card.querySelector(".period-name").value.trim();
+    const start = card.querySelector(".period-start").value;
+    const end = card.querySelector(".period-end").value;
+    
+    if (!name) {
+      isValid = false;
+      errorMessage = "Period name cannot be empty";
+      return;
+    }
+    
+    if (!start || !end) {
+      isValid = false;
+      errorMessage = "Start and end times are required";
+      return;
+    }
+    
+    if (start >= end) {
+      isValid = false;
+      errorMessage = "Start time must be before end time";
+      return;
+    }
+    
+    newSchedule.push({ name, start, end });
+  });
+  
+  if (!isValid) {
+    alert(`Error: ${errorMessage}`);
+    return;
+  }
+  
+  // Check for overlapping periods
+  for (let i = 0; i < newSchedule.length; i++) {
+    for (let j = i + 1; j < newSchedule.length; j++) {
+      const a = newSchedule[i];
+      const b = newSchedule[j];
+      
+      // Check if time ranges overlap
+      if ((a.start < b.end && a.end > b.start)) {
+        alert(`Error: Time ranges overlap between ${a.name} and ${b.name}`);
+        return;
+      }
+    }
+  }
+  
+  // Save the schedule
+  localStorage.setItem("schedule", JSON.stringify(newSchedule));
+  alert("Schedule saved successfully!");
 }
 
 // ========================
-// INITIALIZATION
+// INITIALIZATION (UPDATED)
 // ========================
 
 /**
@@ -568,8 +603,8 @@ function setupSettingsPage() {
   // Initialize class management section
   renderClassList();
   
-  // Initialize schedules section
-  renderSchedules();
+  // Initialize schedule section
+  renderSchedule();
 
   // Set up button event listeners
   document.getElementById("save-weights-btn").addEventListener("click", () => {
@@ -581,7 +616,8 @@ function setupSettingsPage() {
     }
   });
 
-  document.getElementById("add-schedule-btn").addEventListener("click", addNewSchedule);
+  // Schedule buttons
+  document.getElementById("add-schedule-btn").addEventListener("click", addNewPeriod);
   
   // Grading scheme buttons
   document.getElementById("add-grade-btn").addEventListener("click", addGradeLevel);
@@ -597,6 +633,13 @@ function setupSettingsPage() {
       importData(e.target.files[0]);
     }
   });
+  
+  // Add a save button for the schedule
+  const saveScheduleBtn = document.createElement("button");
+  saveScheduleBtn.textContent = "💾 Save Schedule";
+  saveScheduleBtn.id = "save-schedule-btn";
+  saveScheduleBtn.addEventListener("click", saveSchedule);
+  scheduleContainer.parentNode.insertBefore(saveScheduleBtn, document.getElementById("add-schedule-btn"));
 }
 
 // Initialize the page when DOM is loaded
