@@ -1,3 +1,5 @@
+[file name]: assignments.js
+[file content begin]
 // DOM Elements
 const form = document.getElementById('add-assignment-form');
 const list = document.getElementById('assignment-list');
@@ -300,8 +302,10 @@ function updateClassGrade(className) {
   }
 
   const finalGrade = totalWeight > 0 ? (weightedSum / totalWeight) * 100 : 0;
+  const letterGrade = getLetterGrade(finalGrade);
+  
   if (gpaDisplay) {
-    gpaDisplay.textContent = `📊 Grade for ${className}: ${finalGrade.toFixed(2)}%`;
+    gpaDisplay.textContent = `📊 Grade for ${className}: ${finalGrade.toFixed(2)}% - ${letterGrade}`;
   }
 }
 
@@ -312,3 +316,26 @@ function handleClassChange() {
   loadAssignments(selectedClass);
   updateClassGrade(selectedClass);
 }
+
+/**
+ * Gets the letter grade for a given percentage based on the grading scheme
+ * @param {number} percentage - The percentage grade
+ * @returns {string} The letter grade
+ */
+function getLetterGrade(percentage) {
+  const gradingScheme = JSON.parse(localStorage.getItem("gradingScheme")) || [];
+  
+  if (gradingScheme.length === 0) {
+    return "N/A"; // No grading scheme defined
+  }
+  
+  // Find the grade level that matches the percentage
+  for (const grade of gradingScheme) {
+    if (percentage >= grade.min && percentage <= grade.max) {
+      return grade.letter;
+    }
+  }
+  
+  return "N/A"; // Percentage doesn't match any grade level
+}
+[file content end]
