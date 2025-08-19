@@ -9,6 +9,16 @@ function getCurrentWeekday() {
   return days[new Date().getDay()];
 }
 
+function formatTimeRemaining(minutes) {
+  if (minutes < 60) {
+    return `${minutes} min`;
+  } else {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+  }
+}
+
 function checkSchedule() {
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -23,12 +33,12 @@ function checkSchedule() {
     if (weekdays.includes(currentWeekday) && currentTime >= start && currentTime <= end) {
       period.classList.add('active');
       const remaining = end - currentTime;
-      period.innerHTML = `${period.textContent.split(' - ')[0]} - ⏳ ${remaining} min left`;
+      period.innerHTML = `${period.dataset.name} - ${formatTimeRemaining(remaining)} left`;
     } else {
       period.classList.remove('active');
       // Reset text if not active
       if (!period.classList.contains('active')) {
-        period.innerHTML = period.textContent.split(' - ')[0];
+        period.innerHTML = period.dataset.name;
       }
     }
   });
@@ -50,8 +60,8 @@ function renderSchedule() {
   }
   
   container.innerHTML = todaySchedule.map(p => `
-    <div class="period" data-start="${p.start}" data-end="${p.end}" data-weekdays="${p.weekdays ? p.weekdays.join(',') : ''}">
-      ${p.name} (${p.start} - ${p.end})
+    <div class="period" data-name="${p.name}" data-start="${p.start}" data-end="${p.end}" data-weekdays="${p.weekdays ? p.weekdays.join(',') : ''}">
+      ${p.name}
     </div>
   `).join('');
   
