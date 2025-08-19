@@ -48,7 +48,9 @@ function updateGradeDisplay(className) {
   const grade = calculateClassGrade(className);
   const display = document.getElementById("gpa-display");
   if (display) {
-    display.textContent = `📊 Grade for ${className}: ${grade.toFixed(2)}%`;
+    const roundedGrade = Math.round(grade);
+    const exactGrade = grade.toFixed(2);
+    display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (${exactGrade}%)`;
   }
 }
 
