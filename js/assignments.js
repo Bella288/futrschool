@@ -57,6 +57,15 @@ function loadCategories(className) {
   const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}");
   const categories = weights[className] ? Object.keys(weights[className]) : [];
   categorySelect.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+  
+  // If no categories exist for this class, disable the form
+  if (categories.length === 0) {
+    form.querySelector('button[type="submit"]').disabled = true;
+    form.querySelector('button[type="submit"]').title = "No categories defined for this class. Please set up categories in Settings first.";
+  } else {
+    form.querySelector('button[type="submit"]').disabled = false;
+    form.querySelector('button[type="submit"]').title = "";
+  }
 }
 
 // Assignment CRUD operations
