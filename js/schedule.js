@@ -33,7 +33,7 @@ function checkSchedule() {
     if (weekdays.includes(currentWeekday) && currentTime >= start && currentTime <= end) {
       period.classList.add('active');
       const remaining = end - currentTime;
-      period.innerHTML = `${period.dataset.name} - ${formatTimeRemaining(remaining)} left`;
+      period.innerHTML = `${period.dataset.name} - ⌛ ${formatTimeRemaining(remaining)} left`;
     } else {
       period.classList.remove('active');
       // Reset text if not active
