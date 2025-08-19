@@ -208,8 +208,12 @@ function renderAssignmentList(assignments) {
 }
 
 function formatDate(dateString) {
+  // Parse the date string (assuming YYYY-MM-DD format)
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day); // month is 0-indexed in JavaScript
+  
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString(undefined, options);
+  return date.toLocaleDateString(undefined, options);
 }
 
 function setupAssignmentEventListeners() {
@@ -251,16 +255,33 @@ function setupAssignmentEventListeners() {
     });
   });
 
-  // Delete assignment
+  // Delete assignment - FIXED VERSION
   list.querySelectorAll(".delete-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
-      const index = btn.dataset.index;
+      const index = parseInt(btn.dataset.index);
       const className = classSelect.value;
+      const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+      const assignments = allAssignments[className] || [];
+      
+      // Get the actual assignment to find its true index in the original array
+      const filteredAssignments = filterAssignments(assignments, currentSearchTerm);
+      const sortedAssignments = sortAssignments(filteredAssignments, currentSortMethod);
+      const assignmentToDelete = sortedAssignments[index];
+      
+      // Find the actual index in the original array
+      const actualIndex = assignments.findIndex(a => 
+        a.title === assignmentToDelete.title && 
+        a.due === assignmentToDelete.due && 
+        a.category === assignmentToDelete.category
+      );
+      
+      if (actualIndex === -1) {
+        alert("Error: Could not find assignment to delete");
+        return;
+      }
       
       if (confirm("Are you sure you want to delete this assignment?")) {
-        const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
-        const assignments = allAssignments[className] || [];
-        assignments.splice(index, 1);
+        assignments.splice(actualIndex, 1);
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         loadAssignments(className);
         updateClassGrade(className);
