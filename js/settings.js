@@ -5,6 +5,7 @@ const schedule = JSON.parse(localStorage.getItem("schedule")) || [];
 const classSelect = document.getElementById("weight-class-select");
 const weightsForm = document.getElementById("category-weights-form");
 const scheduleContainer = document.getElementById("schedule-container");
+const classListContainer = document.getElementById("class-list-container");
 
 // ========================
 // DATA IMPORT/EXPORT FUNCTIONS
@@ -182,6 +183,101 @@ function saveWeights(className) {
 }
 
 // ========================
+// CLASS MANAGEMENT FUNCTIONS
+// ========================
+
+/**
+ * Renders the class list with delete buttons
+ */
+function renderClassList() {
+  classListContainer.innerHTML = "";
+  const classes = JSON.parse(localStorage.getItem("classes")) || [];
+  
+  if (classes.length === 0) {
+    classListContainer.innerHTML = "<p>No classes found. Add classes from the Class Setup page.</p>";
+    return;
+  }
+  
+  const table = document.createElement("table");
+  table.className = "class-management-table";
+  
+  // Create table header
+  const headerRow = document.createElement("tr");
+  headerRow.innerHTML = `
+    <th>Class Name</th>
+    <th>Teacher</th>
+    <th>Room</th>
+    <th>Period</th>
+    <th>Actions</th>
+  `;
+  table.appendChild(headerRow);
+  
+  // Create table rows for each class
+  classes.forEach((cls, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${cls.name}</td>
+      <td>${cls.teacher || "-"}</td>
+      <td>${cls.room || "-"}</td>
+      <td>${cls.period || "-"}</td>
+      <td>
+        <button class="delete-class-btn" data-index="${index}">🗑️ Delete</button>
+      </td>
+    `;
+    table.appendChild(row);
+  });
+  
+  classListContainer.appendChild(table);
+  
+  // Add event listeners to delete buttons
+  classListContainer.querySelectorAll(".delete-class-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const index = parseInt(btn.dataset.index);
+      deleteClass(index);
+    });
+  });
+}
+
+/**
+ * Deletes a class and all related data
+ * @param {number} index - The index of the class to delete
+ */
+function deleteClass(index) {
+  const classes = JSON.parse(localStorage.getItem("classes")) || [];
+  
+  if (index < 0 || index >= classes.length) {
+    alert("Invalid class index");
+    return;
+  }
+  
+  const className = classes[index].name;
+  
+  if (!confirm(`Are you sure you want to delete "${className}" and all its associated data? This action cannot be undone.`)) {
+    return;
+  }
+  
+  // Remove class from classes array
+  classes.splice(index, 1);
+  localStorage.setItem("classes", JSON.stringify(classes));
+  
+  // Remove class assignments
+  const assignments = JSON.parse(localStorage.getItem("assignments")) || {};
+  delete assignments[className];
+  localStorage.setItem("assignments", JSON.stringify(assignments));
+  
+  // Remove class category weights
+  const categoryWeights = JSON.parse(localStorage.getItem("categoryWeights")) || {};
+  delete categoryWeights[className];
+  localStorage.setItem("categoryWeights", JSON.stringify(categoryWeights));
+  
+  alert(`Class "${className}" and all related data have been deleted.`);
+  
+  // Refresh UI
+  populateClassDropdown();
+  renderClassList();
+}
+
+// ========================
 // SCHEDULE FUNCTIONS
 // ========================
 
@@ -291,6 +387,9 @@ function addNewSchedule() {
 function setupSettingsPage() {
   // Initialize class weights section
   populateClassDropdown();
+  
+  // Initialize class management section
+  renderClassList();
   
   // Initialize schedules section
   renderSchedules();
