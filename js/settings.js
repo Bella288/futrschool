@@ -452,7 +452,7 @@ function deleteClass(index) {
 }
 
 // ========================
-// SCHEDULE FUNCTIONS (UPDATED)
+// SCHEDULE FUNCTIONS (UPDATED WITH WEEKDAYS)
 // ========================
 
 /**
@@ -471,6 +471,19 @@ function renderSchedule() {
     const periodDiv = document.createElement("div");
     periodDiv.className = "period-card";
 
+    // Create weekday checkboxes
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    let weekdaysHTML = '';
+    weekdays.forEach(day => {
+      const isChecked = period.weekdays && period.weekdays.includes(day);
+      weekdaysHTML += `
+        <label>
+          <input type="checkbox" value="${day}" ${isChecked ? 'checked' : ''} class="weekday-checkbox">
+          ${day}
+        </label>
+      `;
+    });
+
     periodDiv.innerHTML = `
       <div class="period-field">
         <label>Period Name:</label>
@@ -483,6 +496,12 @@ function renderSchedule() {
       <div class="period-field">
         <label>End Time:</label>
         <input type="time" class="period-end" value="${period.end}" />
+      </div>
+      <div class="period-field">
+        <label>Active Days:</label>
+        <div class="weekday-checkboxes">
+          ${weekdaysHTML}
+        </div>
       </div>
       <button class="remove-period-btn" data-index="${index}">🗑️ Remove</button>
     `;
@@ -507,7 +526,8 @@ function addNewPeriod() {
   schedule.push({
     name: `Period ${schedule.length + 1}`,
     start: "08:00",
-    end: "09:00"
+    end: "09:00",
+    weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri"] // Default to weekdays
   });
   localStorage.setItem("schedule", JSON.stringify(schedule));
   renderSchedule();
@@ -541,6 +561,10 @@ function saveSchedule() {
     const start = card.querySelector(".period-start").value;
     const end = card.querySelector(".period-end").value;
     
+    // Get selected weekdays
+    const weekdayCheckboxes = card.querySelectorAll(".weekday-checkbox:checked");
+    const weekdays = Array.from(weekdayCheckboxes).map(cb => cb.value);
+    
     if (!name) {
       isValid = false;
       errorMessage = "Period name cannot be empty";
@@ -559,7 +583,13 @@ function saveSchedule() {
       return;
     }
     
-    newSchedule.push({ name, start, end });
+    if (weekdays.length === 0) {
+      isValid = false;
+      errorMessage = "At least one weekday must be selected";
+      return;
+    }
+    
+    newSchedule.push({ name, start, end, weekdays });
   });
   
   if (!isValid) {
@@ -567,15 +597,18 @@ function saveSchedule() {
     return;
   }
   
-  // Check for overlapping periods
+  // Check for overlapping periods on the same days
   for (let i = 0; i < newSchedule.length; i++) {
     for (let j = i + 1; j < newSchedule.length; j++) {
       const a = newSchedule[i];
       const b = newSchedule[j];
       
-      // Check if time ranges overlap
-      if ((a.start < b.end && a.end > b.start)) {
-        alert(`Error: Time ranges overlap between ${a.name} and ${b.name}`);
+      // Check if periods share any common days
+      const commonDays = a.weekdays.filter(day => b.weekdays.includes(day));
+      
+      // Check if time ranges overlap on common days
+      if (commonDays.length > 0 && (a.start < b.end && a.end > b.start)) {
+        alert(`Error: Time ranges overlap between ${a.name} and ${b.name} on ${commonDays.join(', ')}`);
         return;
       }
     }
