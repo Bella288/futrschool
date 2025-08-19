@@ -1,4 +1,12 @@
 function calculateClassGrade(className) {
+  // Check if class still exists
+  const classes = JSON.parse(localStorage.getItem("classes") || "[]");
+  const classExists = classes.some(c => c.name === className);
+  
+  if (!classExists) {
+    return 0; // Return 0 if class has been deleted
+  }
+  
   const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}")[className] || {};
   const assignments = JSON.parse(localStorage.getItem("assignments") || "{}")[className] || [];
 
@@ -48,13 +56,34 @@ function updateGradeDisplay(className) {
 document.addEventListener("DOMContentLoaded", () => {
   const classSelect = document.getElementById("class-select");
   if (classSelect) {
+    // Filter out any classes that might have been deleted
+    const classes = JSON.parse(localStorage.getItem("classes") || "[]");
+    const currentClasses = classes.map(c => c.name);
+    
+    // Remove options for classes that no longer exist
+    Array.from(classSelect.options).forEach(option => {
+      if (option.value && !currentClasses.includes(option.value)) {
+        classSelect.removeChild(option);
+      }
+    });
+    
     classSelect.addEventListener("change", () => {
       updateGradeDisplay(classSelect.value);
     });
 
-    // Update display for initially selected class
-    if (classSelect.value) {
+    // Update display for initially selected class if it still exists
+    if (classSelect.value && currentClasses.includes(classSelect.value)) {
       updateGradeDisplay(classSelect.value);
+    } else if (classSelect.options.length > 0) {
+      // Select the first available class if the current selection is invalid
+      classSelect.value = classSelect.options[0].value;
+      updateGradeDisplay(classSelect.value);
+    } else {
+      // No classes available
+      const display = document.getElementById("gpa-display");
+      if (display) {
+        display.textContent = "📊 No classes available";
+      }
     }
   }
 });
