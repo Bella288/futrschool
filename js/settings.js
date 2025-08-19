@@ -135,29 +135,39 @@ function saveGradingScheme() {
       const a = newGradingScheme[i];
       const b = newGradingScheme[j];
       
-      if ((a.min <= b.max && a.max >= b.min) || (b.min <= a.max && b.max >= a.min)) {
+      // Check if ranges overlap (excluding exact boundaries)
+      if ((a.min < b.max && a.max > b.min) || (b.min < a.max && b.max > a.min)) {
         alert("Error: Grade ranges cannot overlap");
         return;
       }
     }
   }
   
-  // Check for gaps in the grading scheme
-  const sortedScheme = [...newGradingScheme].sort((a, b) => a.min - b.min);
-  let currentMax = -1;
+  // Check for coverage of the 0-100 range with proper continuity
+  const sortedScheme = [...newGradingScheme].sort((a, b) => b.min - a.min); // Sort by min descending
   
-  for (const grade of sortedScheme) {
-    if (grade.min > currentMax + 0.1) {
-      // There's a gap between the current max and the next min
-      alert("Error: There are gaps in the grading scheme. All percentages from 0 to 100 must be covered.");
-      return;
-    }
-    currentMax = Math.max(currentMax, grade.max);
+  // Check if the highest grade goes to 100
+  if (sortedScheme[0].max !== 100) {
+    alert("Error: The highest grade must have a max value of 100");
+    return;
   }
   
-  if (currentMax < 99.9) {
-    alert("Error: The grading scheme doesn't cover all percentages up to 100");
+  // Check if the lowest grade goes to 0
+  if (sortedScheme[sortedScheme.length - 1].min !== 0) {
+    alert("Error: The lowest grade must have a min value of 0");
     return;
+  }
+  
+  // Check for continuity between grades
+  for (let i = 0; i < sortedScheme.length - 1; i++) {
+    const current = sortedScheme[i];
+    const next = sortedScheme[i + 1];
+    
+    // Current grade's min should be exactly next grade's max
+    if (current.min !== next.max) {
+      alert(`Error: There's a gap between ${current.letter} (min: ${current.min}) and ${next.letter} (max: ${next.max}). Grades should be continuous.`);
+      return;
+    }
   }
   
   // Save the grading scheme
