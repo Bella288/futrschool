@@ -69,7 +69,7 @@ function calculateClassGrade(className) {
 function updateGradeDisplay(className) {
   const grade = calculateClassGrade(className);
   const letterGrade = getLetterGrade(grade);
-  const display = document.getElementById('gpa-display');
+  const display = document.getElementById("gpa-display");
   if (display) {
     const roundedGrade = Math.round(grade);
     const exactGrade = grade.toFixed(2);
