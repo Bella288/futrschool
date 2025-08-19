@@ -1,11 +1,171 @@
 const classList = JSON.parse(localStorage.getItem("classes")) || [];
 const categoryWeights = JSON.parse(localStorage.getItem("categoryWeights")) || {};
 const schedule = JSON.parse(localStorage.getItem("schedule")) || [];
+const gradingScheme = JSON.parse(localStorage.getItem("gradingScheme")) || [];
 
 const classSelect = document.getElementById("weight-class-select");
 const weightsForm = document.getElementById("category-weights-form");
 const scheduleContainer = document.getElementById("schedule-container");
 const classListContainer = document.getElementById("class-list-container");
+const gradingSchemeContainer = document.getElementById("grading-scheme-container");
+
+// ========================
+// GRADING SCHEME FUNCTIONS
+// ========================
+
+/**
+ * Renders the grading scheme form
+ */
+function renderGradingScheme() {
+  gradingSchemeContainer.innerHTML = "";
+  
+  if (gradingScheme.length === 0) {
+    gradingSchemeContainer.innerHTML = "<p>No grading scheme defined. Add grade levels below.</p>";
+    return;
+  }
+  
+  // Sort grading scheme by min percentage (descending)
+  const sortedScheme = [...gradingScheme].sort((a, b) => b.min - a.min);
+  
+  sortedScheme.forEach((grade, index) => {
+    const gradeDiv = document.createElement("div");
+    gradeDiv.className = "grade-level";
+    
+    gradeDiv.innerHTML = `
+      <div class="grade-input-group">
+        <label>Letter Grade:</label>
+        <input type="text" class="grade-letter" value="${grade.letter}" placeholder="A+" />
+      </div>
+      <div class="grade-input-group">
+        <label>Min Percentage:</label>
+        <input type="number" class="grade-min" value="${grade.min}" min="0" max="100" step="0.1" />
+      </div>
+      <div class="grade-input-group">
+        <label>Max Percentage:</label>
+        <input type="number" class="grade-max" value="${grade.max}" min="0" max="100" step="0.1" />
+      </div>
+      <button class="remove-grade-btn" data-index="${index}">🗑️ Remove</button>
+    `;
+    
+    gradingSchemeContainer.appendChild(gradeDiv);
+  });
+  
+  // Add event listeners to remove buttons
+  gradingSchemeContainer.querySelectorAll(".remove-grade-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const index = parseInt(btn.dataset.index);
+      removeGradeLevel(index);
+    });
+  });
+}
+
+/**
+ * Adds a new grade level to the grading scheme
+ */
+function addGradeLevel() {
+  gradingScheme.push({
+    letter: "",
+    min: 0,
+    max: 0
+  });
+  renderGradingScheme();
+}
+
+/**
+ * Removes a grade level from the grading scheme
+ * @param {number} index - The index of the grade level to remove
+ */
+function removeGradeLevel(index) {
+  if (index >= 0 && index < gradingScheme.length) {
+    gradingScheme.splice(index, 1);
+    renderGradingScheme();
+  }
+}
+
+/**
+ * Saves the grading scheme to localStorage
+ */
+function saveGradingScheme() {
+  // Validate the grading scheme
+  const gradeLevels = gradingSchemeContainer.querySelectorAll(".grade-level");
+  const newGradingScheme = [];
+  let isValid = true;
+  let errorMessage = "";
+  
+  gradeLevels.forEach((level, index) => {
+    const letter = level.querySelector(".grade-letter").value.trim();
+    const min = parseFloat(level.querySelector(".grade-min").value);
+    const max = parseFloat(level.querySelector(".grade-max").value);
+    
+    if (!letter) {
+      isValid = false;
+      errorMessage = "Letter grade cannot be empty";
+      return;
+    }
+    
+    if (isNaN(min) || isNaN(max)) {
+      isValid = false;
+      errorMessage = "Min and max percentages must be numbers";
+      return;
+    }
+    
+    if (min < 0 || min > 100 || max < 0 || max > 100) {
+      isValid = false;
+      errorMessage = "Percentages must be between 0 and 100";
+      return;
+    }
+    
+    if (min > max) {
+      isValid = false;
+      errorMessage = "Min percentage cannot be greater than max percentage";
+      return;
+    }
+    
+    newGradingScheme.push({ letter, min, max });
+  });
+  
+  if (!isValid) {
+    alert(`Error: ${errorMessage}`);
+    return;
+  }
+  
+  // Check for overlapping ranges
+  for (let i = 0; i < newGradingScheme.length; i++) {
+    for (let j = i + 1; j < newGradingScheme.length; j++) {
+      const a = newGradingScheme[i];
+      const b = newGradingScheme[j];
+      
+      if ((a.min <= b.max && a.max >= b.min) || (b.min <= a.max && b.max >= a.min)) {
+        alert("Error: Grade ranges cannot overlap");
+        return;
+      }
+    }
+  }
+  
+  // Check for gaps in the grading scheme
+  const sortedScheme = [...newGradingScheme].sort((a, b) => a.min - b.min);
+  let currentMax = -1;
+  
+  for (const grade of sortedScheme) {
+    if (grade.min > currentMax + 0.1) {
+      // There's a gap between the current max and the next min
+      alert("Error: There are gaps in the grading scheme. All percentages from 0 to 100 must be covered.");
+      return;
+    }
+    currentMax = Math.max(currentMax, grade.max);
+  }
+  
+  if (currentMax < 99.9) {
+    alert("Error: The grading scheme doesn't cover all percentages up to 100");
+    return;
+  }
+  
+  // Save the grading scheme
+  localStorage.setItem("gradingScheme", JSON.stringify(newGradingScheme));
+  gradingScheme.length = 0;
+  gradingScheme.push(...newGradingScheme);
+  alert("Grading scheme saved successfully!");
+}
 
 // ========================
 // DATA IMPORT/EXPORT FUNCTIONS
@@ -19,7 +179,8 @@ function exportData() {
     classes: JSON.parse(localStorage.getItem("classes") || "[]"),
     assignments: JSON.parse(localStorage.getItem("assignments") || "{}"),
     categoryWeights: JSON.parse(localStorage.getItem("categoryWeights") || "{}"),
-    schedule: JSON.parse(localStorage.getItem("schedule") || "[]")
+    schedule: JSON.parse(localStorage.getItem("schedule") || "[]"),
+    gradingScheme: JSON.parse(localStorage.getItem("gradingScheme") || "[]")
   };
 
   const dataStr = JSON.stringify(allData, null, 2);
@@ -59,6 +220,7 @@ function importData(file) {
       localStorage.setItem("assignments", JSON.stringify(data.assignments));
       localStorage.setItem("categoryWeights", JSON.stringify(data.categoryWeights));
       localStorage.setItem("schedule", JSON.stringify(data.schedule));
+      localStorage.setItem("gradingScheme", JSON.stringify(data.gradingScheme || []));
       
       alert("Data imported successfully! Page will now reload.");
       setTimeout(() => location.reload(), 1000);
@@ -385,6 +547,9 @@ function addNewSchedule() {
  * Sets up all event listeners for the settings page
  */
 function setupSettingsPage() {
+  // Initialize grading scheme section
+  renderGradingScheme();
+  
   // Initialize class weights section
   populateClassDropdown();
   
@@ -405,6 +570,10 @@ function setupSettingsPage() {
   });
 
   document.getElementById("add-schedule-btn").addEventListener("click", addNewSchedule);
+  
+  // Grading scheme buttons
+  document.getElementById("add-grade-btn").addEventListener("click", addGradeLevel);
+  document.getElementById("save-grading-scheme-btn").addEventListener("click", saveGradingScheme);
 
   // Set up import/export buttons
   document.getElementById("export-data-btn").addEventListener("click", exportData);
