@@ -144,28 +144,30 @@ function saveGradingScheme() {
   }
   
   // Check for coverage of the 0-100 range with proper continuity
-  const sortedScheme = [...newGradingScheme].sort((a, b) => b.min - a.min); // Sort by min descending
+  const sortedScheme = [...newGradingScheme].sort((a, b) => b.min - b.min); // Sort by min descending
   
   // Check if the highest grade goes to 100
-  if (sortedScheme[0].max !== 100) {
+  const highestGrade = sortedScheme[0];
+  if (highestGrade.max !== 100) {
     alert("Error: The highest grade must have a max value of 100");
     return;
   }
   
   // Check if the lowest grade goes to 0
-  if (sortedScheme[sortedScheme.length - 1].min !== 0) {
+  const lowestGrade = sortedScheme[sortedScheme.length - 1];
+  if (lowestGrade.min !== 0) {
     alert("Error: The lowest grade must have a min value of 0");
     return;
   }
   
-  // Check for continuity between grades
+  // Check for continuity between grades (no gaps)
   for (let i = 0; i < sortedScheme.length - 1; i++) {
-    const current = sortedScheme[i];
-    const next = sortedScheme[i + 1];
+    const currentGrade = sortedScheme[i];
+    const nextGrade = sortedScheme[i + 1];
     
-    // Current grade's min should be exactly next grade's max
-    if (current.min !== next.max) {
-      alert(`Error: There's a gap between ${current.letter} (min: ${current.min}) and ${next.letter} (max: ${next.max}). Grades should be continuous.`);
+    // Current grade's min should be next grade's max + 1 (no gaps)
+    if (currentGrade.min !== nextGrade.max + 1) {
+      alert(`Error: There's a gap between ${currentGrade.letter} (min: ${currentGrade.min}) and ${nextGrade.letter} (max: ${nextGrade.max}). The min of a higher grade should be exactly 1 point above the max of the next lower grade.`);
       return;
     }
   }
