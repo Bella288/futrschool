@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <title>Assignment Dashboard</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -13,27 +13,60 @@
     <a href="schedule.html">⏰ Schedule</a>
     <a href="settings.html">⚙️ Settings</a>
   </nav>
+  <header>
+    <h1>📚 Assignment Dashboard</h1>
+  </header>
 
-  <header><h1>📋 Assignments</h1></header>
+  <section class="class-selection">
+    <label for="class-select">Select Class:</label>
+    <select id="class-select"></select>
+  </section>
 
-  <main>
+  <section class="assignment-form">
     <form id="add-assignment-form">
-      <select id="class-select" required></select>
-      <input type="text" id="assignment-title" placeholder="Title" required />
-      <input type="url" id="assignment-link" placeholder="Link (optional)" />
-      <input type="date" id="due-date" required />
-      <select id="category" required></select>
-      <input type="number" id="points" placeholder="Point Value" required min="0" />
-      <button type="submit">Add Assignment</button>
+      <h2>Add New Assignment</h2>
+      <input type="text" id="assignment-title" name="assignment-title" placeholder="Assignment Title" required />
+      <input type="url" id="assignment-link" name="assignment-link" placeholder="Link (optional)" />
+      <input type="date" id="due-date" name="due-date" required />
+      <select id="category" name="category" required></select>
+      <input type="number" id="points" name="points" placeholder="Points" required />
+      <button type="submit">➕ Add Assignment</button>
     </form>
+  </section>
 
-    <p style="margin-top: 1em; font-style: italic;">🗑️ You can delete assignments without affecting your grade.</p>
+  <section class="search-section">
+    <h2>🔍 Search Assignments</h2>
+    <div class="search-controls">
+      <input type="text" id="search-input" placeholder="Search by title, category, or due date...">
+      <button id="search-btn" class="search-button">Search</button>
+      <button id="clear-search-btn" class="search-button">Clear</button>
+    </div>
+  </section>
 
-    <div id="gpa-display">📊 Grade: Not calculated yet</div>
-    <section id="assignment-list"></section>
-  </main>
+  <section class="sort-section">
+    <h2>🔀 Sort Assignments</h2>
+    <div class="sort-controls">
+      <select id="sort-by">
+        <option value="due-asc">Due Date (Oldest First)</option>
+        <option value="due-desc">Due Date (Newest First)</option>
+        <option value="title-asc">Title (A-Z)</option>
+        <option value="title-desc">Title (Z-A)</option>
+        <option value="points-asc">Points (Low to High)</option>
+        <option value="points-desc">Points (High to Low)</option>
+        <option value="status">Completion Status</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="assignments-list">
+    <h2>📋 Assignments</h2>
+    <div id="assignment-list"></div>
+  </section>
+
+  <section class="grade-display">
+    <h2 id="gpa-display">📊 Grade: N/A</h2>
+  </section>
 
   <script src="js/assignments.js"></script>
-  <script src="js/grades.js"></script>
 </body>
 </html>
