@@ -73,7 +73,7 @@ function updateGradeDisplay(className) {
   if (display) {
     const roundedGrade = Math.round(grade);
     const exactGrade = grade.toFixed(2);
-    display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (${exactGrade}%) - ${letterGrade}`;
+    display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (Exact: ${exactGrade}%) - ${letterGrade}`;
   }
 }
 
