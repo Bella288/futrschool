@@ -1,3 +1,25 @@
+/**
+ * Gets the letter grade for a given percentage based on the grading scheme
+ * @param {number} percentage - The percentage grade
+ * @returns {string} The letter grade
+ */
+function getLetterGrade(percentage) {
+  const gradingScheme = JSON.parse(localStorage.getItem("gradingScheme")) || [];
+  
+  if (gradingScheme.length === 0) {
+    return "N/A"; // No grading scheme defined
+  }
+  
+  // Find the grade level that matches the percentage
+  for (const grade of gradingScheme) {
+    if (percentage >= grade.min && percentage <= grade.max) {
+      return grade.letter;
+    }
+  }
+  
+  return "N/A"; // Percentage doesn't match any grade level
+}
+
 function calculateClassGrade(className) {
   // Check if class still exists
   const classes = JSON.parse(localStorage.getItem("classes") || "[]");
@@ -46,11 +68,12 @@ function calculateClassGrade(className) {
 
 function updateGradeDisplay(className) {
   const grade = calculateClassGrade(className);
+  const letterGrade = getLetterGrade(grade);
   const display = document.getElementById("gpa-display");
   if (display) {
     const roundedGrade = Math.round(grade);
     const exactGrade = grade.toFixed(2);
-    display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (${exactGrade}%)`;
+    display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (${exactGrade}%) - ${letterGrade}`;
   }
 }
 
