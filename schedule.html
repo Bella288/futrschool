@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!--<meta http-equiv="refresh" content="60">-->
-  <!-- This will refresh the page every 60 seconds. Set content="0" for instant reload. -->
   <title>Schedule</title>
-  <!-- This is the title for the page -->
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="icon" type="image/png" href="/assets/icons/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
@@ -14,7 +11,6 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-title" content="F" />
   <link rel="manifest" href="/assets/icons/site.webmanifest" />
-  <!-- These lines state the sources for the icons -->
   <style>
     /* Additional styles for the date/time display */
     #currentDateTime {
@@ -34,14 +30,13 @@
       margin-bottom: 1.5rem;
     }
     
-    /* Status indicator for reload */
+    /* Status indicator for reload - simplified */
     #reloadStatus {
       font-size: 0.9rem;
       color: #666;
       margin-top: 0.5rem;
     }
   </style>
-  <!-- This defines the styles for the page -->
 </head>
 <body>
   <nav class="navbar">
@@ -54,7 +49,7 @@
     <h1>⏰ Bell Schedule</h1>
     <div class="clock-container">
       <div id="currentDateTime">Loading time...</div>
-      <div id="reloadStatus">Next reload at the next minute</div>
+      <div id="reloadStatus">Auto-reload active</div>
     </div>
   </header>
   
@@ -63,24 +58,17 @@
   </main>
   <script src="js/schedule.js"></script>
   
-  <!-- NEW SCRIPT AT LINE 57 -->
   <script>
     // Function to check time and reload if seconds are 00
     function checkTimeAndReload() {
       const now = new Date();
       const seconds = now.getSeconds();
       
-      // Update status message
-      const reloadStatus = document.getElementById('reloadStatus');
-      if (reloadStatus) {
-        reloadStatus.textContent = `Auto-reload active. Current seconds: ${seconds}. ${seconds === 0 ? 'Reloading now...' : ''}`;
-      }
-      
       // Reload the page if seconds are 00
       if (seconds === 0) {
         setTimeout(() => {
           window.location.reload();
-        }, 100); // Small delay to ensure the status message updates
+        }, 100); // Small delay to ensure smooth operation
       }
     }
     
