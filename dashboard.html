@@ -12,8 +12,56 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-title" content="F" />
   <link rel="manifest" href="/assets/icons/site.webmanifest" />
+  <style>
+    /* About button styles */
+    .about-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .about-button:hover {
+      transform: scale(1.1);
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close-button:hover {
+      color: black;
+    }
+  </style>
 </head>
 <body>
+  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
+       alt="About" class="about-button" title="about the creator and page" id="aboutBtn">
+  
   <nav class="navbar">
     <a href="index.html">🏫 Class Setup</a>
     <a href="dashboard.html" class="active">📋 Dashboard</a>
@@ -23,6 +71,25 @@
   <header>
     <h1>📚 Assignment Dashboard</h1>
   </header>
+
+  <!-- About Modal -->
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>About FutrSchool</h2>
+      <p><strong>Creator:</strong> Bella Lawrence</p>
+      <p><strong>YouTube:</strong> <a href="https://youtube.com/@SerialDesignationN-BL" target="_blank">youtube.com/@SerialDesignationN-BL</a></p>
+      <p><strong>Instagram:</strong> @q_law09</p>
+      <p><strong>Email:</strong> barbar288.2021@gmail.com</p>
+      <p><strong>Source Code:</strong> <a href="https://github.com/Bella288/futrschool" target="_blank">github.com/Bella288/futrschool</a></p>
+      <hr>
+      <p><strong>Why I made it:</strong> To help me and others keep track of their grades and schedules.</p>
+      <p><strong>Other use cases:</strong> Teachers can track overall average grade by class</p>
+      <p><strong>Features:</strong> Schedule view, classes and assignments, weighted categories, auto-grade calculation, and more</p>
+      <hr>
+      <p><strong>My Bio:</strong> Hey! I'm Bella Lawrence, a developer in the wonderful city of Fort Wayne, Indiana. I live with my two cats, Hermione and Barley, my dog, Pebbles, and my rabbit, Buttercup.</p>
+    </div>
+  </div>
 
   <section class="class-selection">
     <label for="class-select">Select Class:</label>
@@ -75,5 +142,25 @@
   </section>
   <script src="js/assignments.js"></script>
   <script src="js/grades.js"></script>
+  <script>
+    // Modal functionality
+    const modal = document.getElementById("aboutModal");
+    const btn = document.getElementById("aboutBtn");
+    const span = document.getElementsByClassName("close-button")[0];
+    
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+    
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+    
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
 </body>
 </html>
