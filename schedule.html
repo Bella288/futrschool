@@ -54,6 +54,7 @@
     <h1>⏰ Bell Schedule</h1>
     <div class="clock-container">
       <div id="currentDateTime">Loading time...</div>
+      <div id="reloadStatus">Next reload at the next minute</div>
     </div>
   </header>
   
@@ -68,6 +69,12 @@
     function checkTimeAndReload() {
       const now = new Date();
       const seconds = now.getSeconds();
+      
+      <!--// Update status message
+      const reloadStatus = document.getElementById('reloadStatus');
+      if (reloadStatus) {
+        reloadStatus.textContent = `Auto-reload active. Current seconds: ${seconds}. ${seconds === 0 ? 'Reloading now...' : ''}`;
+      }-->
       
       // Reload the page if seconds are 00
       if (seconds === 0) {
