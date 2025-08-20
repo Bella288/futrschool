@@ -11,6 +11,25 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
   <meta name="apple-mobile-web-app-title" content="F" />
   <link rel="manifest" href="/assets/icons/site.webmanifest" />
+  <style>
+    /* Additional styles for the date/time display */
+    #currentDateTime {
+      font-size: 1.2rem;
+      color: #444;
+      margin-top: 0.5rem;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: inline-block;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .clock-container {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -21,7 +40,9 @@
   </nav>
   <header>
     <h1>⏰ Bell Schedule</h1>
-    <div id="currentDateTime"></div>
+    <div class="clock-container">
+      <div id="currentDateTime">Loading time...</div>
+    </div>
   </header>
   
   <main>
