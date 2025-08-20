@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- NEW SCRIPT AT LINE 57 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -53,6 +54,26 @@
   <main>
     <section id="schedule"></section>
   </main>
+  <script>
+        function reloadAtNewMinute() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const milliseconds = now.getMilliseconds();
+
+            // Calculate milliseconds until the start of the next minute
+            const delayMillis = (60 - seconds) * 1000 - milliseconds;
+
+            // Display current time for demonstration
+            document.getElementById('currentTime').innerText = now.toLocaleTimeString();
+
+            setTimeout(() => {
+                window.location.reload();
+            }, delayMillis);
+        }
+
+        // Call the function when the page loads
+        reloadAtNewMinute();
+  </script>
   <script src="js/schedule.js"></script>
 </body>
 </html>
