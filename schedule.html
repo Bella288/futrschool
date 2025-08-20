@@ -70,11 +70,11 @@
       const now = new Date();
       const seconds = now.getSeconds();
       
-      // Update status message
+      <!--// Update status message
       const reloadStatus = document.getElementById('reloadStatus');
       if (reloadStatus) {
         reloadStatus.textContent = `Auto-reload active. Current seconds: ${seconds}. ${seconds === 0 ? 'Reloading now...' : ''}`;
-      }
+      }-->
       
       // Reload the page if seconds are 00
       if (seconds === 0) {
