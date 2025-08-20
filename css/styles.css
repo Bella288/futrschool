@@ -96,3 +96,9 @@ input, select, button {
   opacity: 0.7;
   background-color: #f0f0f0;
 }
+#currentDateTime {
+  font-size: 1.1rem;
+  color: #666;
+  margin-top: 0.5rem;
+  font-weight: normal;
+}
