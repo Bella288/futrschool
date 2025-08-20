@@ -19,6 +19,25 @@ function formatTimeRemaining(minutes) {
   }
 }
 
+function updateDateTime() {
+  const now = new Date();
+  const options = { 
+    weekday: 'short', 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  };
+  const dateStr = now.toLocaleDateString('en-US', options);
+  const timeStr = now.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  
+  document.getElementById('currentDateTime').textContent = 
+    `${dateStr} • ${timeStr}`;
+}
+
 function checkSchedule() {
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -68,5 +87,10 @@ function renderSchedule() {
   checkSchedule();
 }
 
+// Initialize the page
+updateDateTime();
 renderSchedule();
+
+// Set up intervals for updating time and checking schedule
+setInterval(updateDateTime, 60000);
 setInterval(checkSchedule, 60000);
