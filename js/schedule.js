@@ -19,23 +19,37 @@ function formatTimeRemaining(minutes) {
   }
 }
 
-function updateDateTime() {
+// Format the current date and time
+function formatDateTime() {
   const now = new Date();
-  const options = { 
-    weekday: 'short', 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  };
-  const dateStr = now.toLocaleDateString('en-US', options);
-  const timeStr = now.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: true 
-  });
   
-  document.getElementById('currentDateTime').textContent = 
-    `${dateStr} • ${timeStr}`;
+  // Format weekday
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weekday = weekdays[now.getDay()];
+  
+  // Format date
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const month = months[now.getMonth()];
+  const date = now.getDate();
+  const year = now.getFullYear();
+  
+  // Format time
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // Convert 0 to 12
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  
+  return `${weekday}, ${month} ${date}, ${year} • ${hours}:${minutes} ${ampm}`;
+}
+
+// Update the date and time display
+function updateDateTime() {
+  const dateTimeElement = document.getElementById('currentDateTime');
+  if (dateTimeElement) {
+    dateTimeElement.textContent = formatDateTime();
+  }
 }
 
 function checkSchedule() {
@@ -92,5 +106,5 @@ updateDateTime();
 renderSchedule();
 
 // Set up intervals for updating time and checking schedule
-setInterval(updateDateTime, 60000);
-setInterval(checkSchedule, 60000);
+setInterval(updateDateTime, 60000); // Update time every minute
+setInterval(checkSchedule, 60000); // Check schedule every minute
