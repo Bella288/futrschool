@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- NEW SCRIPT AT LINE 57 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -34,6 +33,13 @@
       text-align: center;
       margin-bottom: 1.5rem;
     }
+    
+    /* Status indicator for reload */
+    #reloadStatus {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
   </style>
   <!-- This defines the styles for the page -->
 </head>
@@ -48,32 +54,41 @@
     <h1>⏰ Bell Schedule</h1>
     <div class="clock-container">
       <div id="currentDateTime">Loading time...</div>
+      <div id="reloadStatus">Next reload at the next minute</div>
     </div>
   </header>
   
   <main>
     <section id="schedule"></section>
   </main>
-  <script>
-        function reloadAtNewMinute() {
-            const now = new Date();
-            const seconds = now.getSeconds();
-            const milliseconds = now.getMilliseconds();
-
-            // Calculate milliseconds until the start of the next minute
-            const delayMillis = (60 - seconds) * 1000 - milliseconds;
-
-            // Display current time for demonstration
-            document.getElementById('currentTime').innerText = now.toLocaleTimeString();
-
-            setTimeout(() => {
-                window.location.reload();
-            }, delayMillis);
-        }
-
-        // Call the function when the page loads
-        reloadAtNewMinute();
-  </script>
   <script src="js/schedule.js"></script>
+  
+  <!-- NEW SCRIPT AT LINE 57 -->
+  <script>
+    // Function to check time and reload if seconds are 00
+    function checkTimeAndReload() {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      
+      // Update status message
+      const reloadStatus = document.getElementById('reloadStatus');
+      if (reloadStatus) {
+        reloadStatus.textContent = `Auto-reload active. Current seconds: ${seconds}. ${seconds === 0 ? 'Reloading now...' : ''}`;
+      }
+      
+      // Reload the page if seconds are 00
+      if (seconds === 0) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 100); // Small delay to ensure the status message updates
+      }
+    }
+    
+    // Run the check every second
+    setInterval(checkTimeAndReload, 1000);
+    
+    // Initial check
+    checkTimeAndReload();
+  </script>
 </body>
 </html>
