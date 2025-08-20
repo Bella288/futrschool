@@ -10,9 +10,7 @@ function getCurrentWeekday() {
 }
 
 function formatTimeRemaining(minutes) {
-  if (minutes < 1) {
-    return "less than 1 min";
-  } else if (minutes < 60) {
+  if (minutes < 60) {
     return `${minutes} min`;
   } else {
     const hours = Math.floor(minutes / 60);
@@ -38,14 +36,12 @@ function formatDateTime() {
   // Format time
   let hours = now.getHours();
   let minutes = now.getMinutes();
-  let seconds = now.getSeconds();
   const ampm = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12;
   hours = hours ? hours : 12; // Convert 0 to 12
   minutes = minutes < 10 ? '0' + minutes : minutes;
-  seconds = seconds < 10 ? '0' + seconds : seconds;
   
-  return `${weekday}, ${month} ${date}, ${year} • ${hours}:${minutes}:${seconds} ${ampm}`;
+  return `${weekday}, ${month} ${date}, ${year} • ${hours}:${minutes} ${ampm}`;
 }
 
 // Update the date and time display
@@ -59,7 +55,6 @@ function updateDateTime() {
 function checkSchedule() {
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
-  const currentSeconds = now.getSeconds();
   const currentWeekday = getCurrentWeekday();
   
   document.querySelectorAll('.period').forEach(period => {
@@ -70,7 +65,7 @@ function checkSchedule() {
     // Only highlight if it's the right weekday and time
     if (weekdays.includes(currentWeekday) && currentTime >= start && currentTime <= end) {
       period.classList.add('active');
-      const remaining = end - currentTime - (currentSeconds > 0 ? 1 : 0);
+      const remaining = end - currentTime;
       period.innerHTML = `${period.dataset.name} - ⌛ ${formatTimeRemaining(remaining)} left`;
     } else {
       period.classList.remove('active');
@@ -105,3 +100,11 @@ function renderSchedule() {
   
   checkSchedule();
 }
+
+// Initialize the page
+updateDateTime();
+renderSchedule();
+
+// Set up intervals for updating time and checking schedule
+setInterval(updateDateTime, 60000); // Update time every minute
+setInterval(checkSchedule, 60000); // Check schedule every minute
