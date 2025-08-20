@@ -49,5 +49,33 @@
     <section id="schedule"></section>
   </main>
   <script src="js/schedule.js"></script>
+  <!-- Additional script to ensure live updates -->
+  <script>
+    // This ensures the update intervals are set even if the page loses focus
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize the page
+      if (typeof updateDateTime === 'function') updateDateTime();
+      if (typeof renderSchedule === 'function') renderSchedule();
+      
+      // Set up intervals for updating time and checking schedule
+      setInterval(function() {
+        if (typeof updateDateTime === 'function') updateDateTime();
+      }, 1000); // Update time every second for better accuracy
+      
+      setInterval(function() {
+        if (typeof checkSchedule === 'function') checkSchedule();
+      }, 1000); // Check schedule every second for live updates
+    });
+    
+    // Keep the page from sleeping on mobile devices
+    let wakeLock = null;
+    if ('wakeLock' in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.log('Wake Lock could not be acquired:', err);
+      }
+    }
+  </script>
 </body>
 </html>
