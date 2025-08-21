@@ -265,12 +265,12 @@
           </div>
           <div class="stat-card">
             <h3>Average Grade</h3>
-            <div class="stat-value">${averageGrade.toFixed(1)}%</div>
+            <div class="stat-value">${averageGrade.toFixed(0)}%</div>
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
             <h3>GPA</h3>
-            <div class="stat-value">${gpa.toFixed(2)}</div>
+            <div class="stat-value">${gpa.toFixed(3)}</div>
             <p class="stat-description">Based on your grading scheme</p>
           </div>
         `;
@@ -280,7 +280,7 @@
           classGradesContainer.innerHTML = classGrades.map(cls => `
             <div class="class-grade-item">
               <span class="class-grade-name">${cls.name}</span>
-              <span class="class-grade-value">${cls.grade.toFixed(1)}% - ${cls.letter}</span>
+              <span class="class-grade-value">${cls.grade.toFixed(0)}% - ${cls.letter}</span>
             </div>
           `).join('');
         } else {
