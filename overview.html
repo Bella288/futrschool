@@ -135,10 +135,9 @@
     <a href="index.html">🏫 Class Setup</a>
     <a href="dashboard.html">📋 Dashboard</a>
     <a href="schedule.html">⏰ Schedule</a>
-    <a href="settings.html">⚙️ Settings</a>
     <a href="overview.html" class="active">📊 Overview</a>
     <a href="quicklinks.html">🔗 Quick Links</a>
-
+    <a href="settings.html">⚙️ Settings</a>
   </nav>
   
   <!-- About Modal -->
@@ -235,8 +234,25 @@
             averageGrade >= grade.min && averageGrade <= grade.max
           );
           
-          if (averageGradeEntry && averageGradeEntry.gpa) {
+          if (averageGradeEntry && averageGradeEntry.gpa !== undefined) {
             gpa = parseFloat(averageGradeEntry.gpa);
+          } else {
+            // If no matching grade found, calculate weighted average of class GPAs
+            let totalGpa = 0;
+            let gpaCount = 0;
+            
+            classGrades.forEach(cls => {
+              const classGpaEntry = gradingScheme.find(grade => 
+                cls.grade >= grade.min && cls.grade <= grade.max
+              );
+              
+              if (classGpaEntry && classGpaEntry.gpa !== undefined) {
+                totalGpa += parseFloat(classGpaEntry.gpa);
+                gpaCount++;
+              }
+            });
+            
+            gpa = gpaCount > 0 ? totalGpa / gpaCount : 0;
           }
         }
         
