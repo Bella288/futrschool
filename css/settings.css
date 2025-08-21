@@ -179,3 +179,43 @@ body {
   color: #666;
 }
 
+/* Add these styles to your settings.css file */
+.grade-input-group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.grade-input-group label {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.grade-input-group input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.grade-level {
+  background: #f9f9f9;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.remove-grade-btn {
+  background: #ff4757;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.remove-grade-btn:hover {
+  background: #ff3742;
+}
