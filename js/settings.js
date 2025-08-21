@@ -44,6 +44,10 @@ function renderGradingScheme() {
         <label>Max Percentage:</label>
         <input type="number" class="grade-max" value="${grade.max}" min="0" max="100" step="0.1" />
       </div>
+      <div class="grade-input-group">
+        <label>GPA Value:</label>
+        <input type="number" class="grade-gpa" value="${grade.gpa || ''}" min="0" max="4" step="0.1" placeholder="4.0" />
+      </div>
       <button class="remove-grade-btn" data-index="${index}">🗑️ Remove</button>
     `;
     
@@ -66,7 +70,8 @@ function addGradeLevel() {
   gradingScheme.push({
     letter: "",
     min: 0,
-    max: 0
+    max: 0,
+    gpa: 0
   });
   renderGradingScheme();
 }
@@ -96,6 +101,7 @@ function saveGradingScheme() {
     const letter = level.querySelector(".grade-letter").value.trim();
     const min = parseFloat(level.querySelector(".grade-min").value);
     const max = parseFloat(level.querySelector(".grade-max").value);
+    const gpa = parseFloat(level.querySelector(".grade-gpa").value) || 0;
     
     if (!letter) {
       isValid = false;
@@ -121,7 +127,13 @@ function saveGradingScheme() {
       return;
     }
     
-    newGradingScheme.push({ letter, min, max });
+    if (isNaN(gpa) || gpa < 0 || gpa > 4) {
+      isValid = false;
+      errorMessage = "GPA must be a number between 0 and 4";
+      return;
+    }
+    
+    newGradingScheme.push({ letter, min, max, gpa });
   });
   
   if (!isValid) {
@@ -192,7 +204,8 @@ function exportData() {
     assignments: JSON.parse(localStorage.getItem("assignments") || "{}"),
     categoryWeights: JSON.parse(localStorage.getItem("categoryWeights") || "{}"),
     schedule: JSON.parse(localStorage.getItem("schedule") || "[]"),
-    gradingScheme: JSON.parse(localStorage.getItem("gradingScheme") || "[]")
+    gradingScheme: JSON.parse(localStorage.getItem("gradingScheme") || "[]"),
+    quickLinks: JSON.parse(localStorage.getItem("quickLinks") || "[]")
   };
 
   const dataStr = JSON.stringify(allData, null, 2);
@@ -233,6 +246,7 @@ function importData(file) {
       localStorage.setItem("categoryWeights", JSON.stringify(data.categoryWeights));
       localStorage.setItem("schedule", JSON.stringify(data.schedule));
       localStorage.setItem("gradingScheme", JSON.stringify(data.gradingScheme || []));
+      localStorage.setItem("quickLinks", JSON.stringify(data.quickLinks || []));
       
       alert("Data imported successfully! Page will now reload.");
       setTimeout(() => location.reload(), 1000);
