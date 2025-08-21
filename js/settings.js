@@ -46,7 +46,7 @@ function renderGradingScheme() {
       </div>
       <div class="grade-input-group">
         <label>GPA Value:</label>
-        <input type="number" class="grade-gpa" value="${grade.gpa !== undefined ? grade.gpa.toFixed(2) : ''}" min="0" max="4" step="0.01" placeholder="4.00" />
+        <input type="number" class="grade-gpa" value="${grade.gpa !== undefined ? grade.gpa.toFixed(3) : ''}" min="0" max="4.333" step="0.001" placeholder="4.333" />
       </div>
       <button class="remove-grade-btn" data-index="${index}">🗑️ Remove</button>
     `;
@@ -72,7 +72,7 @@ function addGradeLevel() {
     letter: "",
     min: 0,
     max: 0,
-    gpa: 0.00
+    gpa: 0.000
   };
   
   // Add to the global array
@@ -108,7 +108,7 @@ function saveGradingScheme() {
     const min = parseFloat(level.querySelector(".grade-min").value);
     const max = parseFloat(level.querySelector(".grade-max").value);
     const gpaInput = level.querySelector(".grade-gpa");
-    const gpa = gpaInput.value ? parseFloat(gpaInput.value) : 0.00;
+    const gpa = gpaInput.value ? parseFloat(gpaInput.value) : 0.000;
     
     if (!letter) {
       isValid = false;
@@ -134,14 +134,14 @@ function saveGradingScheme() {
       return;
     }
     
-    if (isNaN(gpa) || gpa < 0 || gpa > 4) {
+    if (isNaN(gpa) || gpa < 0 || gpa > 4.333) {
       isValid = false;
-      errorMessage = "GPA must be a number between 0 and 4";
+      errorMessage = "GPA must be a number between 0 and 4.333";
       return;
     }
     
-    // Round GPA to 2 decimal places
-    const roundedGpa = Math.round(gpa * 100) / 100;
+    // Round GPA to 3 decimal places
+    const roundedGpa = Math.round(gpa * 1000) / 1000;
     
     newGradingScheme.push({ letter, min, max, gpa: roundedGpa });
   });
@@ -554,7 +554,7 @@ function addNewPeriod() {
     name: `Period ${schedule.length + 1}`,
     start: "08:00",
     end: "09:00",
-    weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri"] // Default to weekdays
+    weekdays: ["Mon", "Tue", 'Wed', "Thu", "Fri"] // Default to weekdays
   });
   localStorage.setItem("schedule", JSON.stringify(schedule));
   renderSchedule();
