@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quick Links | GradeLine</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="/assets/icons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="F" />
+  <link rel="manifest" href="/assets/icons/site.webmanifest" />
+  <style>
+    /* About button styles */
+    .about-button {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 1001;
+    }
+    .about-button:hover {
+      transform: scale(1.1);
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1002;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      overflow: auto;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 15px;
+      top: 10px;
+    }
+    .close-button:hover {
+      color: black;
+    }
+    
+    /* Quick Links specific styles */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .link-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .link-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .link-card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    
+    .link-card a {
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: #0066cc;
+      text-decoration: none;
+    }
+    
+    .link-card a:hover {
+      text-decoration: underline;
+    }
+    
+    .link-actions {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+    
+    .delete-link-btn {
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    
+    .no-links {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
+       alt="About" class="about-button" title="about the creator and page" id="aboutBtn">
+  
+  <nav class="navbar">
+    <a href="index.html">🏫 Class Setup</a>
+    <a href="dashboard.html">📋 Dashboard</a>
+    <a href="schedule.html">⏰ Schedule</a>
+    <a href="overview.html">📊 Overview</a>
+    <a href="quicklinks.html" class="active">🔗 Quick Links</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+  
+  <!-- About Modal -->
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>About GradeLine</h2>
+      <p><strong>Creator:</strong> Bella Lawrence</p>
+      <p><strong>YouTube:</strong> <a href="https://youtube.com/@SerialDesignationN-BL" target="_blank">youtube.com/@SerialDesignationN-BL</a></p>
+      <p><strong>Instagram:</strong> @q_law09</p>
+      <p><strong>Email:</strong> barbar288.2021@gmail.com</p>
+      <p><strong>Source Code:</strong> <a href="https://github.com/Bella288/futrschool" target="_blank">github.com/Bella288/futrschool</a></p>
+      <hr>
+      <p><strong>Why I made it:</strong> To help me and others keep track of their grades and schedules.</p>
+      <p><strong>Other use cases:</strong> Teachers can track overall average grade by class</p>
+      <p><strong>Features:</strong> Schedule view, classes and assignments, weighted categories, auto-grade calculation, and more</p>
+      <hr>
+      <p><strong>My Bio:</strong> Hey! I'm Bella Lawrence, a developer in the wonderful city of Fort Wayne, Indiana. I live with my two cats, Hermione and Barley, my dog, Pebbles, and my rabbit, Buttercup.</p>
+    </div>
+  </div>
+
+  <header>
+    <h1>🔗 Quick Links</h1>
+    <p>Save and access your frequently used links</p>
+  </header>
+  
+  <main>
+    <section class="add-link-form">
+      <h2>Add New Link</h2>
+      <form id="add-link-form">
+        <input type="text" id="link-name" placeholder="Link Name" required />
+        <input type="url" id="link-url" placeholder="URL (include https://)" required />
+        <button type="submit">➕ Add Link</button>
+      </form>
+    </section>
+    
+    <section class="links-list">
+      <h2>Your Links</h2>
+      <div id="links-container" class="links-grid"></div>
+    </section>
+  </main>
+  
+  <script>
+    // Quick Links functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('add-link-form');
+      const linksContainer = document.getElementById('links-container');
+      
+      // Load and display links
+      function loadLinks() {
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        linksContainer.innerHTML = '';
+        
+        if (links.length === 0) {
+          linksContainer.innerHTML = '<div class="no-links">No links saved yet. Add some using the form above.</div>';
+          return;
+        }
+        
+        links.forEach((link, index) => {
+          const linkCard = document.createElement('div');
+          linkCard.className = 'link-card';
+          linkCard.innerHTML = `
+            <h3>${link.name}</h3>
+            <a href="${link.url}" target="_blank">${link.url}</a>
+            <div class="link-actions">
+              <button class="delete-link-btn" data-index="${index}">🗑️ Delete</button>
+            </div>
+          `;
+          linksContainer.appendChild(linkCard);
+        });
+        
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-link-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = parseInt(btn.dataset.index);
+            deleteLink(index);
+          });
+        });
+      }
+      
+      // Add new link
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const name = document.getElementById('link-name').value.trim();
+        let url = document.getElementById('link-url').value.trim();
+        
+        // Ensure URL has proper protocol
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          url = 'https://' + url;
+        }
+        
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        links.push({ name, url });
+        localStorage.setItem('quickLinks', JSON.stringify(links));
+        
+        form.reset();
+        loadLinks();
+      });
+      
+      // Delete link
+      function deleteLink(index) {
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        if (index >= 0 && index < links.length) {
+          if (confirm(`Are you sure you want to delete "${links[index].name}"?`)) {
+            links.splice(index, 1);
+            localStorage.setItem('quickLinks', JSON.stringify(links));
+            loadLinks();
+          }
+        }
+      }
+      
+      // Initial load
+      loadLinks();
+    });
+    
+    // Modal functionality
+    const modal = document.getElementById("aboutModal");
+    const btn = document.getElementById("aboutBtn");
+    const span = document.getElementsByClassName("close-button")[0];
+    
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+    
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+    
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
