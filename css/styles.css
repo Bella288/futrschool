@@ -102,3 +102,124 @@ input, select, button {
   margin-top: 0.5rem;
   font-weight: normal;
 }
+/* Quick Links Styles */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.link-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.link-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.link-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.link-card a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.link-card a:hover {
+  text-decoration: underline;
+}
+
+.link-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.delete-link-btn {
+  background: #ff4757;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.no-links {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+/* Overview Styles */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+  color: #0066cc;
+}
+
+.stat-description {
+  color: #666;
+  margin: 0;
+}
+
+.class-grades {
+  margin-top: 2rem;
+}
+
+.class-grade-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.class-grade-name {
+  font-weight: bold;
+}
+
+.class-grade-value {
+  font-size: 1.2rem;
+  color: #0066cc;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
