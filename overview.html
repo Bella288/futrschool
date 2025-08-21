@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Overview | GradeLine</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="/assets/icons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="F" />
+  <link rel="manifest" href="/assets/icons/site.webmanifest" />
+  <style>
+    /* About button styles */
+    .about-button {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      z-index: 1001;
+    }
+    .about-button:hover {
+      transform: scale(1.1);
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1002;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      overflow: auto;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      position: absolute;
+      right: 15px;
+      top: 10px;
+    }
+    .close-button:hover {
+      color: black;
+    }
+    
+    /* Overview specific styles */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .stat-card h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 0.5rem 0;
+      color: #0066cc;
+    }
+    
+    .stat-description {
+      color: #666;
+      margin: 0;
+    }
+    
+    .class-grades {
+      margin-top: 2rem;
+    }
+    
+    .class-grade-item {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .class-grade-name {
+      font-weight: bold;
+    }
+    
+    .class-grade-value {
+      font-size: 1.2rem;
+      color: #0066cc;
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
+       alt="About" class="about-button" title="about the creator and page" id="aboutBtn">
+  
+  <nav class="navbar">
+    <a href="index.html">🏫 Class Setup</a>
+    <a href="dashboard.html">📋 Dashboard</a>
+    <a href="schedule.html">⏰ Schedule</a>
+    <a href="settings.html">⚙️ Settings</a>
+    <a href="overview.html" class="active">📊 Overview</a>
+    <a href="quicklinks.html">🔗 Quick Links</a>
+
+  </nav>
+  
+  <!-- About Modal -->
+  <div id="aboutModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>About GradeLine</h2>
+      <p><strong>Creator:</strong> Bella Lawrence</p>
+      <p><strong>YouTube:</strong> <a href="https://youtube.com/@SerialDesignationN-BL" target="_blank">youtube.com/@SerialDesignationN-BL</a></p>
+      <p><strong>Instagram:</strong> @q_law09</p>
+      <p><strong>Email:</strong> barbar288.2021@gmail.com</p>
+      <p><strong>Source Code:</strong> <a href="https://github.com/Bella288/futrschool" target="_blank">github.com/Bella288/futrschool</a></p>
+      <hr>
+      <p><strong>Why I made it:</strong> To help me and others keep track of their grades and schedules.</p>
+      <p><strong>Other use cases:</strong> Teachers can track overall average grade by class</p>
+      <p><strong>Features:</strong> Schedule view, classes and assignments, weighted categories, auto-grade calculation, and more</p>
+      <hr>
+      <p><strong>My Bio:</strong> Hey! I'm Bella Lawrence, a developer in the wonderful city of Fort Wayne, Indiana. I live with my two cats, Hermione and Barley, my dog, Pebbles, and my rabbit, Buttercup.</p>
+    </div>
+  </div>
+
+  <header>
+    <h1>📊 Overview</h1>
+    <p>Your academic performance at a glance</p>
+  </header>
+  
+  <main>
+    <section class="stats-grid" id="stats-container">
+      <!-- Stats will be populated by JavaScript -->
+    </section>
+    
+    <section class="class-grades">
+      <h2>Class Grades</h2>
+      <div id="class-grades-container">
+        <!-- Class grades will be populated by JavaScript -->
+      </div>
+    </section>
+  </main>
+  
+  <script>
+    // Overview functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const statsContainer = document.getElementById('stats-container');
+      const classGradesContainer = document.getElementById('class-grades-container');
+      
+      // Calculate and display overview statistics
+      function updateOverview() {
+        const classes = JSON.parse(localStorage.getItem('classes') || '[]');
+        const assignments = JSON.parse(localStorage.getItem('assignments') || '{}');
+        const gradingScheme = JSON.parse(localStorage.getItem('gradingScheme') || '[]');
+        
+        // Calculate missing assignments (past due with no grade)
+        let missingAssignments = 0;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time part for accurate date comparison
+        
+        for (const className in assignments) {
+          assignments[className].forEach(assignment => {
+            const dueDate = new Date(assignment.due);
+            dueDate.setHours(0, 0, 0, 0);
+            
+            if (!assignment.completed && dueDate < today) {
+              missingAssignments++;
+            }
+          });
+        }
+        
+        // Calculate average grade across all classes
+        let totalGrade = 0;
+        let classCount = 0;
+        const classGrades = [];
+        
+        classes.forEach(cls => {
+          const classGrade = calculateClassGrade(cls.name);
+          if (classGrade > 0) { // Only include classes with graded assignments
+            totalGrade += classGrade;
+            classCount++;
+            classGrades.push({
+              name: cls.name,
+              grade: classGrade,
+              letter: getLetterGrade(classGrade)
+            });
+          }
+        });
+        
+        const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
+        const averageLetterGrade = getLetterGrade(averageGrade);
+        
+        // Calculate GPA based on grading scheme
+        let gpa = 0;
+        if (gradingScheme.length > 0 && classCount > 0) {
+          // Find the GPA value for the average letter grade
+          const averageGradeEntry = gradingScheme.find(grade => 
+            averageGrade >= grade.min && averageGrade <= grade.max
+          );
+          
+          if (averageGradeEntry && averageGradeEntry.gpa) {
+            gpa = parseFloat(averageGradeEntry.gpa);
+          }
+        }
+        
+        // Update stats display
+        statsContainer.innerHTML = `
+          <div class="stat-card">
+            <h3>Missing Assignments</h3>
+            <div class="stat-value">${missingAssignments}</div>
+            <p class="stat-description">Past due assignments without grades</p>
+          </div>
+          <div class="stat-card">
+            <h3>Average Grade</h3>
+            <div class="stat-value">${averageGrade.toFixed(1)}%</div>
+            <p class="stat-description">${averageLetterGrade}</p>
+          </div>
+          <div class="stat-card">
+            <h3>GPA</h3>
+            <div class="stat-value">${gpa.toFixed(2)}</div>
+            <p class="stat-description">Based on your grading scheme</p>
+          </div>
+        `;
+        
+        // Update class grades display
+        if (classGrades.length > 0) {
+          classGradesContainer.innerHTML = classGrades.map(cls => `
+            <div class="class-grade-item">
+              <span class="class-grade-name">${cls.name}</span>
+              <span class="class-grade-value">${cls.grade.toFixed(1)}% - ${cls.letter}</span>
+            </div>
+          `).join('');
+        } else {
+          classGradesContainer.innerHTML = '<div class="no-data">No graded assignments found</div>';
+        }
+      }
+      
+      // Calculate grade for a specific class (reuse from grades.js)
+      function calculateClassGrade(className) {
+        const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}")[className] || {};
+        const assignments = JSON.parse(localStorage.getItem("assignments") || "{}")[className] || [];
+
+        const categoryTotals = {};
+        const categoryEarned = {};
+
+        assignments.forEach(a => {
+          if (!a.completed || a.grade == null) return;
+          const cat = a.category;
+          categoryTotals[cat] = (categoryTotals[cat] || 0) + a.points;
+          categoryEarned[cat] = (categoryEarned[cat] || 0) + (a.grade / 100) * a.points;
+        });
+
+        let weightedSum = 0;
+        let totalWeight = 0;
+
+        for (const cat in categoryEarned) {
+          const weight = weights[cat] || 0;
+          const earned = categoryEarned[cat];
+          const total = categoryTotals[cat];
+          const avg = total > 0 ? earned / total : 0;
+          
+          if (total > 0) {
+            weightedSum += avg * weight;
+            totalWeight += weight;
+          }
+        }
+
+        return totalWeight > 0 ? (weightedSum / totalWeight) * 100 : 0;
+      }
+      
+      // Get letter grade for a percentage (reuse from grades.js)
+      function getLetterGrade(percentage) {
+        const gradingScheme = JSON.parse(localStorage.getItem("gradingScheme")) || [];
+        
+        if (gradingScheme.length === 0) {
+          return "N/A";
+        }
+        
+        for (const grade of gradingScheme) {
+          if (percentage >= grade.min && percentage <= grade.max) {
+            return grade.letter;
+          }
+        }
+        
+        return "N/A";
+      }
+      
+      // Initial update
+      updateOverview();
+      
+      // Set up auto-refresh every minute
+      setInterval(updateOverview, 60000);
+    });
+    
+    // Modal functionality
+    const modal = document.getElementById("aboutModal");
+    const btn = document.getElementById("aboutBtn");
+    const span = document.getElementsByClassName("close-button")[0];
+    
+    btn.onclick = function() {
+      modal.style.display = "block";
+    }
+    
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+    
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
