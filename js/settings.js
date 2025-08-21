@@ -46,7 +46,7 @@ function renderGradingScheme() {
       </div>
       <div class="grade-input-group">
         <label>GPA Value:</label>
-        <input type="number" class="grade-gpa" value="${grade.gpa || ''}" min="0" max="4" step="0.1" placeholder="4.0" />
+        <input type="number" class="grade-gpa" value="${grade.gpa !== undefined ? grade.gpa.toFixed(2) : ''}" min="0" max="4" step="0.01" placeholder="4.00" />
       </div>
       <button class="remove-grade-btn" data-index="${index}">🗑️ Remove</button>
     `;
@@ -67,12 +67,18 @@ function renderGradingScheme() {
  * Adds a new grade level to the grading scheme
  */
 function addGradeLevel() {
-  gradingScheme.push({
+  // Create a new grade object with proper defaults
+  const newGrade = {
     letter: "",
     min: 0,
     max: 0,
-    gpa: 0
-  });
+    gpa: 0.00
+  };
+  
+  // Add to the global array
+  gradingScheme.push(newGrade);
+  
+  // Re-render the form
   renderGradingScheme();
 }
 
@@ -101,7 +107,8 @@ function saveGradingScheme() {
     const letter = level.querySelector(".grade-letter").value.trim();
     const min = parseFloat(level.querySelector(".grade-min").value);
     const max = parseFloat(level.querySelector(".grade-max").value);
-    const gpa = parseFloat(level.querySelector(".grade-gpa").value) || 0;
+    const gpaInput = level.querySelector(".grade-gpa");
+    const gpa = gpaInput.value ? parseFloat(gpaInput.value) : 0.00;
     
     if (!letter) {
       isValid = false;
@@ -133,7 +140,10 @@ function saveGradingScheme() {
       return;
     }
     
-    newGradingScheme.push({ letter, min, max, gpa });
+    // Round GPA to 2 decimal places
+    const roundedGpa = Math.round(gpa * 100) / 100;
+    
+    newGradingScheme.push({ letter, min, max, gpa: roundedGpa });
   });
   
   if (!isValid) {
@@ -156,7 +166,7 @@ function saveGradingScheme() {
   }
   
   // Check for coverage of the 0-100 range with proper continuity
-  const sortedScheme = [...newGradingScheme].sort((a, b) => b.min - b.min); // Sort by min descending
+  const sortedScheme = [...newGradingScheme].sort((a, b) => b.min - a.min);
   
   // Check if the highest grade goes to 100
   const highestGrade = sortedScheme[0];
@@ -186,8 +196,11 @@ function saveGradingScheme() {
   
   // Save the grading scheme
   localStorage.setItem("gradingScheme", JSON.stringify(newGradingScheme));
+  
+  // Update the global gradingScheme array by replacing its contents
   gradingScheme.length = 0;
   gradingScheme.push(...newGradingScheme);
+  
   alert("Grading scheme saved successfully!");
 }
 
