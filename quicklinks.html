@@ -412,7 +412,11 @@
       border-color: #0066cc;
       transform: scale(1.02);
     }
-    
+    .folder-card.drag-over {
+      background-color: #e8f5e9;
+      border: 2px dashed #28a745;
+      transform: scale(1.05);
+    }
     /* Animation for dragged items */
     @keyframes wiggle {
       0%, 100% { transform: rotate(0deg) translateY(0); }
@@ -618,6 +622,11 @@
         folderCard.setAttribute('data-folder-id', folder.id);
         folderCard.setAttribute('draggable', 'true');
         folderCard.setAttribute('title', `Open ${folder.name} folder`);
+        // Add drop events to folders
+        folderCard.addEventListener('dragover', handleDragOver);
+        folderCard.addEventListener('dragenter', handleDragEnter);
+        folderCard.addEventListener('dragleave', handleDragLeave);
+        folderCard.addEventListener('drop', handleFolderDrop);
         
         folderCard.innerHTML = `
           <div class="folder-icon-container">
@@ -745,7 +754,29 @@
           el.classList.remove('drag-over');
         });
       }
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
       
+      function handleDragEnter(e) {
+        e.preventDefault();
+        this.classList.add('drag-over');
+      }
+      
+      function handleDragLeave() {
+        this.classList.remove('drag-over');
+      }
+      
+      function handleFolderDrop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        
+        const draggedId = e.dataTransfer.getData('text/plain');
+        if (draggedId) {
+          moveLinkToFolder(draggedId, this.getAttribute('data-folder-id'));
+        }
+      }
       // Open folder view
       function openFolder(folderId) {
         currentFolderId = folderId;
@@ -911,18 +942,21 @@
         e.preventDefault();
         contentContainer.classList.remove('drag-over');
         
-        const draggedId = e.dataTransfer.getData('text/plain');
-        if (draggedId) {
-          // If we're in a folder view, add to current folder
-          if (currentFolderId) {
-            moveLinkToFolder(draggedId, currentFolderId);
-          } else {
-            // Otherwise, remove from any folder (move to root)
-            moveLinkToFolder(draggedId, null);
+        // Only process if not dropping on a folder (handled by folder's own drop handler)
+        if (!e.target.closest('.folder-card')) {
+          const draggedId = e.dataTransfer.getData('text/plain');
+          if (draggedId) {
+            // If we're in a folder view, add to current folder
+            if (currentFolderId) {
+              moveLinkToFolder(draggedId, currentFolderId);
+            } else {
+              // Otherwise, remove from any folder (move to root)
+              moveLinkToFolder(draggedId, null);
+            }
           }
         }
       });
-      
+            
       // Move link to folder
       function moveLinkToFolder(linkId, folderId) {
         const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
