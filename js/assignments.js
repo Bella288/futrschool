@@ -17,6 +17,7 @@ let currentSortMethod = 'due-asc';
 document.addEventListener('DOMContentLoaded', () => {
   loadClasses();
   setupEventListeners();
+  checkPastDueAssignments();
 });
 
 function setupEventListeners() {
@@ -33,6 +34,41 @@ function setupEventListeners() {
   
   // Sorting
   sortBySelect.addEventListener('change', handleSortChange);
+}
+
+// Check for past due assignments and prompt user
+function checkPastDueAssignments() {
+  const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+  
+  for (const className in allAssignments) {
+    allAssignments[className].forEach((assignment, index) => {
+      const dueDate = new Date(assignment.due);
+      dueDate.setHours(0, 0, 0, 0);
+      
+      // Check if assignment is past due, not completed, and doesn't have a status note
+      if (!assignment.completed && dueDate < today && !assignment.statusNote) {
+        const response = confirm(`Assignment "${assignment.title}" in ${className} is past due. Is it missing or not graded yet?\n\nClick OK if it's missing, Cancel if it's not graded yet.`);
+        
+        // Update the assignment with status note
+        if (response) {
+          assignment.statusNote = "m"; // Missing
+        } else {
+          assignment.statusNote = "nm"; // Not graded yet
+        }
+        
+        // Save the updated assignments
+        localStorage.setItem("assignments", JSON.stringify(allAssignments));
+      }
+      
+      // If assignment was marked as missing but now has a grade, change status to "nm"
+      if (assignment.completed && assignment.grade !== null && assignment.statusNote === "m") {
+        assignment.statusNote = "nm";
+        localStorage.setItem("assignments", JSON.stringify(allAssignments));
+      }
+    });
+  }
 }
 
 // Main functions
@@ -80,7 +116,8 @@ function handleFormSubmit(e) {
     category: categorySelect.value,
     points: parseInt(form['points'].value, 10),
     completed: false,
-    grade: null
+    grade: null,
+    statusNote: null
   };
 
   if (!assignment.title || !assignment.due || isNaN(assignment.points)) {
@@ -177,6 +214,7 @@ function renderAssignmentList(assignments) {
   }
 
   assignments.forEach((a, i) => {
+    const statusIcon = a.statusNote === "m" ? "⚠️ Missing" : (a.statusNote === "nm" ? "⏳ Not Graded" : "");
     const item = document.createElement("div");
     item.className = `assignment-item ${a.completed ? 'completed' : ''}`;
     item.innerHTML = `
@@ -187,6 +225,7 @@ function renderAssignmentList(assignments) {
       <div class="assignment-details">
         <span class="assignment-category">${a.category}</span>
         <span class="assignment-due">📅 ${formatDate(a.due)}</span>
+        ${statusIcon ? `<span class="assignment-status">${statusIcon}</span>` : ''}
       </div>
       <div class="assignment-actions">
         ${a.link ? `<a href="${a.link}" target="_blank" class="assignment-link">🔗 Link</a>` : ''}
@@ -229,6 +268,12 @@ function setupAssignmentEventListeners() {
       if (grade !== null && !isNaN(grade)) {
         assignments[index].completed = true;
         assignments[index].grade = parseFloat(grade);
+        
+        // If assignment was marked as missing but now has a grade, change status to "nm"
+        if (assignments[index].statusNote === "m") {
+          assignments[index].statusNote = "nm";
+        }
+        
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         updateClassGrade(className);
         loadAssignments(className);
