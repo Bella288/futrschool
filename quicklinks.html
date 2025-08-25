@@ -221,6 +221,186 @@
     .add-link-form button:hover {
       background: #0052a3;
     }
+    
+    /* Folder styles */
+    .folder-section {
+      margin-bottom: 2rem;
+    }
+    
+    .folder-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    
+    .folder-header:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .folder-icon {
+      margin-right: 0.5rem;
+      transition: transform 0.3s;
+    }
+    
+    .folder-open .folder-icon {
+      transform: rotate(90deg);
+    }
+    
+    .folder-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 0;
+      flex-grow: 1;
+    }
+    
+    .folder-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .folder-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    .folder-btn:hover {
+      background-color: #e9ecef;
+    }
+    
+    .folder-content {
+      display: none;
+      margin-left: 1.5rem;
+      padding-left: 1rem;
+      border-left: 2px solid #e9ecef;
+    }
+    
+    .folder-open .folder-content {
+      display: block;
+    }
+    
+    .folder-dropzone {
+      min-height: 100px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .folder-dropzone.drag-over {
+      background-color: #f0f7ff;
+      border-color: #0066cc;
+    }
+    
+    .folder-dropzone p {
+      margin: 0;
+      color: #666;
+    }
+    
+    .create-folder-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 1rem;
+    }
+    
+    .create-folder-btn:hover {
+      background: #218838;
+    }
+    
+    .folder-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 1003;
+      width: 90%;
+      max-width: 400px;
+    }
+    
+    .folder-dialog h3 {
+      margin-top: 0;
+    }
+    
+    .folder-dialog input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    
+    .folder-dialog-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    
+    .folder-dialog-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    .folder-dialog-btn.cancel {
+      background: #f8f9fa;
+    }
+    
+    .folder-dialog-btn.confirm {
+      background: #0066cc;
+      color: white;
+    }
+    
+    .dialog-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1002;
+    }
+    
+    .current-folder-indicator {
+      background: #e9ecef;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .back-to-root {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem;
+    }
   </style>
 </head>
 <body>
@@ -263,24 +443,64 @@
   <main>
     <section class="add-link-form">
       <h2>Add New Link</h2>
+      <div id="current-folder-indicator" class="current-folder-indicator" style="display: none;">
+        <button class="back-to-root" title="Back to all folders">←</button>
+        <span>Adding to: <span id="current-folder-name">Folder</span></span>
+      </div>
       <form id="add-link-form">
         <input type="text" id="link-name" placeholder="Link Name" required />
         <input type="url" id="link-url" placeholder="URL (include https://)" required />
         <button type="submit">➕ Add Link</button>
       </form>
+      <button id="create-folder-btn" class="create-folder-btn">📁 Create Folder</button>
     </section>
     
     <section class="links-list">
       <h2>Your Links</h2>
+      <div id="folders-container"></div>
       <div id="links-container" class="links-grid"></div>
     </section>
   </main>
   
+  <!-- Folder Dialog -->
+  <div id="folder-dialog-overlay" class="dialog-overlay"></div>
+  <div id="folder-dialog" class="folder-dialog">
+    <h3>Create New Folder</h3>
+    <input type="text" id="folder-name-input" placeholder="Folder Name" />
+    <div class="folder-dialog-buttons">
+      <button class="folder-dialog-btn cancel" id="folder-dialog-cancel">Cancel</button>
+      <button class="folder-dialog-btn confirm" id="folder-dialog-confirm">Create</button>
+    </div>
+  </div>
+  
   <script>
-    // Quick Links functionality
+    // Quick Links functionality with folders
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('add-link-form');
       const linksContainer = document.getElementById('links-container');
+      const foldersContainer = document.getElementById('folders-container');
+      const createFolderBtn = document.getElementById('create-folder-btn');
+      const folderDialog = document.getElementById('folder-dialog');
+      const folderDialogOverlay = document.getElementById('folder-dialog-overlay');
+      const folderDialogCancel = document.getElementById('folder-dialog-cancel');
+      const folderDialogConfirm = document.getElementById('folder-dialog-confirm');
+      const folderNameInput = document.getElementById('folder-name-input');
+      const currentFolderIndicator = document.getElementById('current-folder-indicator');
+      const currentFolderName = document.getElementById('current-folder-name');
+      const backToRootBtn = document.querySelector('.back-to-root');
+      
+      let currentFolderId = null;
+      let dragSourceElement = null;
+      
+      // Initialize data structure
+      function initData() {
+        if (!localStorage.getItem('quickLinks')) {
+          localStorage.setItem('quickLinks', JSON.stringify([]));
+        }
+        if (!localStorage.getItem('quickLinkFolders')) {
+          localStorage.setItem('quickLinkFolders', JSON.stringify([]));
+        }
+      }
       
       // Function to get domain name from URL
       function getDomainName(url) {
@@ -302,70 +522,243 @@
         }
       }
       
-      // Load and display links
-      function loadLinks() {
+      // Generate a unique ID
+      function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+      }
+      
+      // Load and display folders and links
+      function loadContent() {
+        const folders = JSON.parse(localStorage.getItem('quickLinkFolders') || '[]');
         const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        
+        foldersContainer.innerHTML = '';
         linksContainer.innerHTML = '';
         
-        if (links.length === 0) {
-          linksContainer.innerHTML = '<div class="no-links">No links saved yet. Add some using the form above.</div>';
-          return;
-        }
-        
-        links.forEach((link, index) => {
-          const linkCard = document.createElement('div');
-          linkCard.className = 'link-card loading';
-          linkCard.setAttribute('data-url', link.url);
-          linkCard.setAttribute('title', `Click to open ${link.name}`);
-          
-          const domain = getDomainName(link.url);
-          
-          linkCard.innerHTML = `
-            <div class="favicon-container">
-              <div class="default-favicon">🌐</div>
-            </div>
-            <h3 class="link-name">${link.name}</h3>
-            <p class="domain-name">${domain}</p>
-            <div class="link-actions">
-              <button class="delete-link-btn" data-index="${index}" title="Delete link">🗑️</button>
-            </div>
-          `;
-          linksContainer.appendChild(linkCard);
-          
-          // Add click event to open link
-          linkCard.addEventListener('click', (e) => {
-            // Don't open if user clicked on delete button
-            if (!e.target.closest('.delete-link-btn')) {
-              window.open(link.url, '_blank');
-            }
-          });
-          
-          // Load favicon asynchronously
-          const faviconUrl = getFaviconUrl(link.url);
-          if (faviconUrl) {
-            const img = new Image();
-            img.onload = function() {
-              const faviconContainer = linkCard.querySelector('.favicon-container');
-              faviconContainer.innerHTML = `<img src="${faviconUrl}" alt="Favicon" class="favicon">`;
-              linkCard.classList.remove('loading');
-            };
-            img.onerror = function() {
-              linkCard.classList.remove('loading');
-            };
-            img.src = faviconUrl;
-          } else {
-            linkCard.classList.remove('loading');
+        // Display folders
+        folders.forEach(folder => {
+          if (!folder.parentId || folder.parentId === currentFolderId) {
+            const folderElement = createFolderElement(folder);
+            foldersContainer.appendChild(folderElement);
           }
         });
         
-        // Add event listeners to delete buttons
-        document.querySelectorAll('.delete-link-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the card click event
-            const index = parseInt(btn.dataset.index);
-            deleteLink(index);
-          });
+        // Display links that are in the current folder or have no folder
+        const folderLinks = links.filter(link => 
+          (currentFolderId && link.folderId === currentFolderId) || 
+          (!currentFolderId && !link.folderId)
+        );
+        
+        if (foldersContainer.children.length === 0 && folderLinks.length === 0) {
+          linksContainer.innerHTML = '<div class="no-links">No links or folders saved yet. Add some using the form above.</div>';
+          return;
+        }
+        
+        if (folderLinks.length === 0 && currentFolderId) {
+          const folder = folders.find(f => f.id === currentFolderId);
+          const dropZone = document.createElement('div');
+          dropZone.className = 'folder-dropzone';
+          dropZone.setAttribute('data-folder-id', currentFolderId);
+          dropZone.innerHTML = '<p>Drag links here or use the form above to add links to this folder</p>';
+          
+          // Add drag and drop events
+          setupDropZone(dropZone);
+          
+          linksContainer.appendChild(dropZone);
+          return;
+        }
+        
+        folderLinks.forEach((link, index) => {
+          const linkCard = createLinkCard(link, index);
+          linksContainer.appendChild(linkCard);
         });
+      }
+      
+      // Create folder element
+      function createFolderElement(folder) {
+        const folderSection = document.createElement('div');
+        folderSection.className = 'folder-section';
+        folderSection.setAttribute('data-folder-id', folder.id);
+        
+        const folderHeader = document.createElement('div');
+        folderHeader.className = 'folder-header';
+        
+        const folderContent = document.createElement('div');
+        folderContent.className = 'folder-content';
+        
+        folderHeader.innerHTML = `
+          <span class="folder-icon">📁</span>
+          <h3 class="folder-title">${folder.name}</h3>
+          <div class="folder-actions">
+            <button class="folder-btn open-folder" title="Open folder">📂</button>
+            <button class="folder-btn delete-folder" title="Delete folder">🗑️</button>
+          </div>
+        `;
+        
+        folderSection.appendChild(folderHeader);
+        folderSection.appendChild(folderContent);
+        
+        // Add event listeners
+        const openBtn = folderHeader.querySelector('.open-folder');
+        const deleteBtn = folderHeader.querySelector('.delete-folder');
+        
+        openBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          currentFolderId = folder.id;
+          currentFolderIndicator.style.display = 'flex';
+          currentFolderName.textContent = folder.name;
+          loadContent();
+        });
+        
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteFolder(folder.id);
+        });
+        
+        folderHeader.addEventListener('click', () => {
+          folderSection.classList.toggle('folder-open');
+        });
+        
+        // Load folder contents
+        const folders = JSON.parse(localStorage.getItem('quickLinkFolders') || '[]');
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        
+        const subFolders = folders.filter(f => f.parentId === folder.id);
+        const folderLinks = links.filter(link => link.folderId === folder.id);
+        
+        if (subFolders.length === 0 && folderLinks.length === 0) {
+          const dropZone = document.createElement('div');
+          dropZone.className = 'folder-dropzone';
+          dropZone.setAttribute('data-folder-id', folder.id);
+          dropZone.innerHTML = '<p>Drag links here to add them to this folder</p>';
+          
+          // Add drag and drop events
+          setupDropZone(dropZone);
+          
+          folderContent.appendChild(dropZone);
+        } else {
+          // Add sub-folders
+          subFolders.forEach(subFolder => {
+            const subFolderElement = createFolderElement(subFolder);
+            folderContent.appendChild(subFolderElement);
+          });
+          
+          // Add links
+          folderLinks.forEach((link, index) => {
+            const linkCard = createLinkCard(link, index);
+            folderContent.appendChild(linkCard);
+          });
+        }
+        
+        return folderSection;
+      }
+      
+      // Create link card element
+      function createLinkCard(link, index) {
+        const linkCard = document.createElement('div');
+        linkCard.className = 'link-card loading';
+        linkCard.setAttribute('data-url', link.url);
+        linkCard.setAttribute('data-link-id', link.id);
+        linkCard.setAttribute('draggable', 'true');
+        linkCard.setAttribute('title', `Click to open ${link.name}`);
+        
+        const domain = getDomainName(link.url);
+        
+        linkCard.innerHTML = `
+          <div class="favicon-container">
+            <div class="default-favicon">🌐</div>
+          </div>
+          <h3 class="link-name">${link.name}</h3>
+          <p class="domain-name">${domain}</p>
+          <div class="link-actions">
+            <button class="delete-link-btn" data-id="${link.id}" title="Delete link">🗑️</button>
+          </div>
+        `;
+        
+        // Add click event to open link
+        linkCard.addEventListener('click', (e) => {
+          // Don't open if user clicked on delete button
+          if (!e.target.closest('.delete-link-btn')) {
+            window.open(link.url, '_blank');
+          }
+        });
+        
+        // Add drag events
+        linkCard.addEventListener('dragstart', handleDragStart);
+        linkCard.addEventListener('dragend', handleDragEnd);
+        
+        // Load favicon asynchronously
+        const faviconUrl = getFaviconUrl(link.url);
+        if (faviconUrl) {
+          const img = new Image();
+          img.onload = function() {
+            const faviconContainer = linkCard.querySelector('.favicon-container');
+            faviconContainer.innerHTML = `<img src="${faviconUrl}" alt="Favicon" class="favicon">`;
+            linkCard.classList.remove('loading');
+          };
+          img.onerror = function() {
+            linkCard.classList.remove('loading');
+          };
+          img.src = faviconUrl;
+        } else {
+          linkCard.classList.remove('loading');
+        }
+        
+        // Add event listener to delete button
+        const deleteBtn = linkCard.querySelector('.delete-link-btn');
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent triggering the card click event
+          deleteLink(link.id);
+        });
+        
+        return linkCard;
+      }
+      
+      // Setup drop zone for drag and drop
+      function setupDropZone(dropZone) {
+        dropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+          dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('drag-over');
+          
+          if (dragSourceElement) {
+            const linkId = dragSourceElement.getAttribute('data-link-id');
+            const folderId = dropZone.getAttribute('data-folder-id');
+            moveLinkToFolder(linkId, folderId);
+          }
+        });
+      }
+      
+      // Drag and drop handlers
+      function handleDragStart(e) {
+        dragSourceElement = this;
+        this.style.opacity = '0.4';
+        e.dataTransfer.effectAllowed = 'move';
+      }
+      
+      function handleDragEnd() {
+        this.style.opacity = '1';
+        dragSourceElement = null;
+      }
+      
+      // Move link to folder
+      function moveLinkToFolder(linkId, folderId) {
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        const linkIndex = links.findIndex(link => link.id === linkId);
+        
+        if (linkIndex !== -1) {
+          links[linkIndex].folderId = folderId;
+          localStorage.setItem('quickLinks', JSON.stringify(links));
+          loadContent();
+        }
       }
       
       // Add new link
@@ -394,27 +787,136 @@
         }
         
         const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
-        links.push({ name, url });
+        const newLink = {
+          id: generateId(),
+          name,
+          url,
+          folderId: currentFolderId
+        };
+        
+        links.push(newLink);
         localStorage.setItem('quickLinks', JSON.stringify(links));
         
         form.reset();
-        loadLinks();
+        loadContent();
       });
       
       // Delete link
-      function deleteLink(index) {
+      function deleteLink(linkId) {
         const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
-        if (index >= 0 && index < links.length) {
-          if (confirm(`Are you sure you want to delete "${links[index].name}"?`)) {
-            links.splice(index, 1);
+        const linkIndex = links.findIndex(link => link.id === linkId);
+        
+        if (linkIndex !== -1) {
+          if (confirm(`Are you sure you want to delete "${links[linkIndex].name}"?`)) {
+            links.splice(linkIndex, 1);
             localStorage.setItem('quickLinks', JSON.stringify(links));
-            loadLinks();
+            loadContent();
           }
         }
       }
       
+      // Create folder
+      function createFolder(name) {
+        const folders = JSON.parse(localStorage.getItem('quickLinkFolders') || '[]');
+        const newFolder = {
+          id: generateId(),
+          name,
+          parentId: currentFolderId
+        };
+        
+        folders.push(newFolder);
+        localStorage.setItem('quickLinkFolders', JSON.stringify(folders));
+        loadContent();
+      }
+      
+      // Delete folder
+      function deleteFolder(folderId) {
+        const folders = JSON.parse(localStorage.getItem('quickLinkFolders') || '[]');
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        
+        // Check if folder has contents
+        const hasSubfolders = folders.some(f => f.parentId === folderId);
+        const hasLinks = links.some(l => l.folderId === folderId);
+        
+        if (hasSubfolders || hasLinks) {
+          if (!confirm('This folder contains items. Are you sure you want to delete it? All contents will be moved to the root.')) {
+            return;
+          }
+          
+          // Move subfolders to root
+          folders.forEach(folder => {
+            if (folder.parentId === folderId) {
+              folder.parentId = null;
+            }
+          });
+          
+          // Move links to root
+          links.forEach(link => {
+            if (link.folderId === folderId) {
+              link.folderId = null;
+            }
+          });
+          
+          localStorage.setItem('quickLinks', JSON.stringify(links));
+        }
+        
+        // Remove the folder
+        const folderIndex = folders.findIndex(f => f.id === folderId);
+        if (folderIndex !== -1) {
+          folders.splice(folderIndex, 1);
+          localStorage.setItem('quickLinkFolders', JSON.stringify(folders));
+          loadContent();
+        }
+      }
+      
+      // Folder dialog handlers
+      createFolderBtn.addEventListener('click', () => {
+        folderDialog.style.display = 'block';
+        folderDialogOverlay.style.display = 'block';
+        folderNameInput.value = '';
+        folderNameInput.focus();
+      });
+      
+      folderDialogCancel.addEventListener('click', () => {
+        folderDialog.style.display = 'none';
+        folderDialogOverlay.style.display = 'none';
+      });
+      
+      folderDialogOverlay.addEventListener('click', () => {
+        folderDialog.style.display = 'none';
+        folderDialogOverlay.style.display = 'none';
+      });
+      
+      folderDialogConfirm.addEventListener('click', () => {
+        const name = folderNameInput.value.trim();
+        if (name) {
+          createFolder(name);
+          folderDialog.style.display = 'none';
+          folderDialogOverlay.style.display = 'none';
+        }
+      });
+      
+      folderNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const name = folderNameInput.value.trim();
+          if (name) {
+            createFolder(name);
+            folderDialog.style.display = 'none';
+            folderDialogOverlay.style.display = 'none';
+          }
+        }
+      });
+      
+      // Back to root button
+      backToRootBtn.addEventListener('click', () => {
+        currentFolderId = null;
+        currentFolderIndicator.style.display = 'none';
+        loadContent();
+      });
+      
       // Initial load
-      loadLinks();
+      initData();
+      loadContent();
     });
     
     // Modal functionality
