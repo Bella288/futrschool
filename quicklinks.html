@@ -96,6 +96,31 @@
       transform: translateY(-2px);
     }
     
+    .folder-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+    }
+    
+    .folder-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      border-color: #28a745;
+    }
+    
+    .folder-card:active {
+      transform: translateY(-2px);
+    }
+    
     .favicon-container {
       width: 64px;
       height: 64px;
@@ -108,10 +133,27 @@
       padding: 0.5rem;
     }
     
+    .folder-icon-container {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e8f5e9;
+      border-radius: 50%;
+      padding: 0.5rem;
+    }
+    
     .favicon {
       width: 40px;
       height: 40px;
       object-fit: contain;
+    }
+    
+    .folder-icon {
+      font-size: 40px;
+      color: #28a745;
     }
     
     .default-favicon {
@@ -128,7 +170,23 @@
       word-break: break-word;
     }
     
+    .folder-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 0.5rem 0;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    
     .domain-name {
+      font-size: 0.85rem;
+      color: #666;
+      margin: 0;
+      word-break: break-word;
+    }
+    
+    .folder-count {
       font-size: 0.85rem;
       color: #666;
       margin: 0;
@@ -227,84 +285,37 @@
       margin-bottom: 2rem;
     }
     
-    .folder-header {
+    .folder-view-header {
       display: flex;
       align-items: center;
-      margin-bottom: 1rem;
-      cursor: pointer;
-      padding: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .back-button {
+      background: #6c757d;
+      color: white;
+      border: none;
       border-radius: 8px;
-      transition: background-color 0.2s;
-    }
-    
-    .folder-header:hover {
-      background-color: #f5f5f5;
-    }
-    
-    .folder-icon {
-      margin-right: 0.5rem;
-      transition: transform 0.3s;
-    }
-    
-    .folder-open .folder-icon {
-      transform: rotate(90deg);
-    }
-    
-    .folder-title {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin: 0;
-      flex-grow: 1;
-    }
-    
-    .folder-actions {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-right: 1rem;
       display: flex;
+      align-items: center;
       gap: 0.5rem;
     }
     
-    .folder-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0.25rem;
-      border-radius: 4px;
-      transition: background-color 0.2s;
+    .back-button:hover {
+      background: #5a6268;
     }
     
-    .folder-btn:hover {
-      background-color: #e9ecef;
-    }
-    
-    .folder-content {
-      display: none;
-      margin-left: 1.5rem;
-      padding-left: 1rem;
-      border-left: 2px solid #e9ecef;
-    }
-    
-    .folder-open .folder-content {
-      display: block;
-    }
-    
-    .folder-dropzone {
-      min-height: 100px;
-      border: 2px dashed #ccc;
-      border-radius: 8px;
-      padding: 1rem;
-      margin: 1rem 0;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    
-    .folder-dropzone.drag-over {
-      background-color: #f0f7ff;
-      border-color: #0066cc;
-    }
-    
-    .folder-dropzone p {
+    .folder-view-title {
+      font-size: 1.5rem;
+      font-weight: 600;
       margin: 0;
-      color: #666;
+      color: #333;
     }
     
     .create-folder-btn {
@@ -317,6 +328,9 @@
       cursor: pointer;
       transition: background-color 0.2s ease;
       margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     
     .create-folder-btn:hover {
@@ -384,22 +398,31 @@
       z-index: 1002;
     }
     
-    .current-folder-indicator {
-      background: #e9ecef;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      margin-bottom: 1rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
+    /* Drag and drop styles */
+    .dragging {
+      opacity: 0.8;
+      transform: rotate(5deg) scale(1.05);
+      z-index: 1000;
+      transition: transform 0.1s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
     
-    .back-to-root {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0.25rem;
+    .drag-over {
+      background-color: #f0f7ff;
+      border-color: #0066cc;
+      transform: scale(1.02);
+    }
+    
+    /* Animation for dragged items */
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      25% { transform: rotate(-2deg) translateY(-3px); }
+      75% { transform: rotate(2deg) translateY(-3px); }
+    }
+    
+    .dragging {
+      animation: wiggle 0.3s infinite ease-in-out;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -443,10 +466,6 @@
   <main>
     <section class="add-link-form">
       <h2>Add New Link</h2>
-      <div id="current-folder-indicator" class="current-folder-indicator" style="display: none;">
-        <button class="back-to-root" title="Back to all folders">←</button>
-        <span>Adding to: <span id="current-folder-name">Folder</span></span>
-      </div>
       <form id="add-link-form">
         <input type="text" id="link-name" placeholder="Link Name" required />
         <input type="url" id="link-url" placeholder="URL (include https://)" required />
@@ -456,9 +475,13 @@
     </section>
     
     <section class="links-list">
-      <h2>Your Links</h2>
-      <div id="folders-container"></div>
-      <div id="links-container" class="links-grid"></div>
+      <div id="folder-view-header" class="folder-view-header" style="display: none;">
+        <button id="back-button" class="back-button">← Back</button>
+        <h2 id="folder-view-title" class="folder-view-title">Folder Name</h2>
+      </div>
+      
+      <h2 id="main-title">Your Links & Folders</h2>
+      <div id="content-container" class="links-grid"></div>
     </section>
   </main>
   
@@ -477,20 +500,22 @@
     // Quick Links functionality with folders
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('add-link-form');
-      const linksContainer = document.getElementById('links-container');
-      const foldersContainer = document.getElementById('folders-container');
+      const contentContainer = document.getElementById('content-container');
       const createFolderBtn = document.getElementById('create-folder-btn');
       const folderDialog = document.getElementById('folder-dialog');
       const folderDialogOverlay = document.getElementById('folder-dialog-overlay');
       const folderDialogCancel = document.getElementById('folder-dialog-cancel');
       const folderDialogConfirm = document.getElementById('folder-dialog-confirm');
       const folderNameInput = document.getElementById('folder-name-input');
-      const currentFolderIndicator = document.getElementById('current-folder-indicator');
-      const currentFolderName = document.getElementById('current-folder-name');
-      const backToRootBtn = document.querySelector('.back-to-root');
+      const folderViewHeader = document.getElementById('folder-view-header');
+      const backButton = document.getElementById('back-button');
+      const folderViewTitle = document.getElementById('folder-view-title');
+      const mainTitle = document.getElementById('main-title');
       
       let currentFolderId = null;
       let dragSourceElement = null;
+      let dragOffsetX = 0;
+      let dragOffsetY = 0;
       
       // Initialize data structure
       function initData() {
@@ -532,131 +557,105 @@
         const folders = JSON.parse(localStorage.getItem('quickLinkFolders') || '[]');
         const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
         
-        foldersContainer.innerHTML = '';
-        linksContainer.innerHTML = '';
+        contentContainer.innerHTML = '';
         
-        // Display folders
-        folders.forEach(folder => {
-          if (!folder.parentId || folder.parentId === currentFolderId) {
-            const folderElement = createFolderElement(folder);
-            foldersContainer.appendChild(folderElement);
-          }
-        });
-        
-        // Display links that are in the current folder or have no folder
-        const folderLinks = links.filter(link => 
-          (currentFolderId && link.folderId === currentFolderId) || 
-          (!currentFolderId && !link.folderId)
-        );
-        
-        if (foldersContainer.children.length === 0 && folderLinks.length === 0) {
-          linksContainer.innerHTML = '<div class="no-links">No links or folders saved yet. Add some using the form above.</div>';
-          return;
-        }
-        
-        if (folderLinks.length === 0 && currentFolderId) {
+        if (currentFolderId) {
+          // Show folder contents
           const folder = folders.find(f => f.id === currentFolderId);
-          const dropZone = document.createElement('div');
-          dropZone.className = 'folder-dropzone';
-          dropZone.setAttribute('data-folder-id', currentFolderId);
-          dropZone.innerHTML = '<p>Drag links here or use the form above to add links to this folder</p>';
+          if (folder) {
+            folderViewTitle.textContent = folder.name;
+            folderViewHeader.style.display = 'flex';
+            mainTitle.style.display = 'none';
+            
+            // Display links in this folder
+            const folderLinks = links.filter(link => link.folderId === currentFolderId);
+            
+            if (folderLinks.length === 0) {
+              contentContainer.innerHTML = '<div class="no-links">No links in this folder yet. Add some using the form above.</div>';
+              return;
+            }
+            
+            folderLinks.forEach((link, index) => {
+              const linkCard = createLinkCard(link, index);
+              contentContainer.appendChild(linkCard);
+            });
+          }
+        } else {
+          // Show all folders and links not in folders
+          folderViewHeader.style.display = 'none';
+          mainTitle.style.display = 'block';
           
-          // Add drag and drop events
-          setupDropZone(dropZone);
+          const rootLinks = links.filter(link => !link.folderId);
+          const rootFolders = folders.filter(folder => !folder.parentId);
           
-          linksContainer.appendChild(dropZone);
-          return;
+          if (rootFolders.length === 0 && rootLinks.length === 0) {
+            contentContainer.innerHTML = '<div class="no-links">No links or folders saved yet. Add some using the form above.</div>';
+            return;
+          }
+          
+          // Display folders
+          rootFolders.forEach(folder => {
+            const folderCard = createFolderCard(folder);
+            contentContainer.appendChild(folderCard);
+          });
+          
+          // Display links not in folders
+          rootLinks.forEach((link, index) => {
+            const linkCard = createLinkCard(link, index);
+            contentContainer.appendChild(linkCard);
+          });
         }
-        
-        folderLinks.forEach((link, index) => {
-          const linkCard = createLinkCard(link, index);
-          linksContainer.appendChild(linkCard);
-        });
       }
       
-      // Create folder element
-      function createFolderElement(folder) {
-        const folderSection = document.createElement('div');
-        folderSection.className = 'folder-section';
-        folderSection.setAttribute('data-folder-id', folder.id);
+      // Create folder card element
+      function createFolderCard(folder) {
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        const folderLinks = links.filter(link => link.folderId === folder.id);
+        const linkCount = folderLinks.length;
         
-        const folderHeader = document.createElement('div');
-        folderHeader.className = 'folder-header';
+        const folderCard = document.createElement('div');
+        folderCard.className = 'folder-card';
+        folderCard.setAttribute('data-folder-id', folder.id);
+        folderCard.setAttribute('draggable', 'true');
+        folderCard.setAttribute('title', `Open ${folder.name} folder`);
         
-        const folderContent = document.createElement('div');
-        folderContent.className = 'folder-content';
-        
-        folderHeader.innerHTML = `
-          <span class="folder-icon">📁</span>
-          <h3 class="folder-title">${folder.name}</h3>
-          <div class="folder-actions">
-            <button class="folder-btn open-folder" title="Open folder">📂</button>
-            <button class="folder-btn delete-folder" title="Delete folder">🗑️</button>
+        folderCard.innerHTML = `
+          <div class="folder-icon-container">
+            <div class="folder-icon">📁</div>
+          </div>
+          <h3 class="folder-name">${folder.name}</h3>
+          <p class="folder-count">${linkCount} link${linkCount !== 1 ? 's' : ''}</p>
+          <div class="link-actions">
+            <button class="delete-link-btn" data-id="${folder.id}" title="Delete folder">🗑️</button>
           </div>
         `;
         
-        folderSection.appendChild(folderHeader);
-        folderSection.appendChild(folderContent);
-        
-        // Add event listeners
-        const openBtn = folderHeader.querySelector('.open-folder');
-        const deleteBtn = folderHeader.querySelector('.delete-folder');
-        
-        openBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          currentFolderId = folder.id;
-          currentFolderIndicator.style.display = 'flex';
-          currentFolderName.textContent = folder.name;
-          loadContent();
+        // Add click event to open folder
+        folderCard.addEventListener('click', (e) => {
+          // Don't open if user clicked on delete button
+          if (!e.target.closest('.delete-link-btn')) {
+            openFolder(folder.id);
+          }
         });
         
+        // Add drag events
+        folderCard.addEventListener('dragstart', handleDragStart);
+        folderCard.addEventListener('dragend', handleDragEnd);
+        
+        // Add event listener to delete button
+        const deleteBtn = folderCard.querySelector('.delete-link-btn');
         deleteBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
+          e.stopPropagation(); // Prevent triggering the card click event
           deleteFolder(folder.id);
         });
         
-        folderHeader.addEventListener('click', () => {
-          folderSection.classList.toggle('folder-open');
-        });
-        
-        // Load folder contents
-        const folders = JSON.parse(localStorage.getItem('quickLinkFolders') || '[]');
-        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
-        
-        const subFolders = folders.filter(f => f.parentId === folder.id);
-        const folderLinks = links.filter(link => link.folderId === folder.id);
-        
-        if (subFolders.length === 0 && folderLinks.length === 0) {
-          const dropZone = document.createElement('div');
-          dropZone.className = 'folder-dropzone';
-          dropZone.setAttribute('data-folder-id', folder.id);
-          dropZone.innerHTML = '<p>Drag links here to add them to this folder</p>';
-          
-          // Add drag and drop events
-          setupDropZone(dropZone);
-          
-          folderContent.appendChild(dropZone);
-        } else {
-          // Add sub-folders
-          subFolders.forEach(subFolder => {
-            const subFolderElement = createFolderElement(subFolder);
-            folderContent.appendChild(subFolderElement);
-          });
-          
-          // Add links
-          folderLinks.forEach((link, index) => {
-            const linkCard = createLinkCard(link, index);
-            folderContent.appendChild(linkCard);
-          });
-        }
-        
-        return folderSection;
+        return folderCard;
       }
       
       // Create link card element
       function createLinkCard(link, index) {
         const linkCard = document.createElement('div');
-        linkCard.className = 'link-card loading';
+        linkCard.className = 'link-card';
         linkCard.setAttribute('data-url', link.url);
         linkCard.setAttribute('data-link-id', link.id);
         linkCard.setAttribute('draggable', 'true');
@@ -694,14 +693,11 @@
           img.onload = function() {
             const faviconContainer = linkCard.querySelector('.favicon-container');
             faviconContainer.innerHTML = `<img src="${faviconUrl}" alt="Favicon" class="favicon">`;
-            linkCard.classList.remove('loading');
           };
           img.onerror = function() {
-            linkCard.classList.remove('loading');
+            // Keep the default icon if favicon fails to load
           };
           img.src = faviconUrl;
-        } else {
-          linkCard.classList.remove('loading');
         }
         
         // Add event listener to delete button
@@ -714,51 +710,46 @@
         return linkCard;
       }
       
-      // Setup drop zone for drag and drop
-      function setupDropZone(dropZone) {
-        dropZone.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          dropZone.classList.add('drag-over');
-        });
-        
-        dropZone.addEventListener('dragleave', () => {
-          dropZone.classList.remove('drag-over');
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-          e.preventDefault();
-          dropZone.classList.remove('drag-over');
-          
-          if (dragSourceElement) {
-            const linkId = dragSourceElement.getAttribute('data-link-id');
-            const folderId = dropZone.getAttribute('data-folder-id');
-            moveLinkToFolder(linkId, folderId);
-          }
-        });
-      }
-      
-      // Drag and drop handlers
+      // Improved drag and drop handlers with fun animations
       function handleDragStart(e) {
         dragSourceElement = this;
-        this.style.opacity = '0.4';
+        this.classList.add('dragging');
+        
+        // Calculate offset for smoother dragging
+        const rect = this.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        
         e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', this.getAttribute('data-link-id') || this.getAttribute('data-folder-id'));
+        
+        // Set a custom drag image (optional)
+        const dragImage = this.cloneNode(true);
+        dragImage.style.width = `${rect.width}px`;
+        dragImage.style.height = `${rect.height}px`;
+        dragImage.style.position = 'absolute';
+        dragImage.style.top = '-1000px';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, dragOffsetX, dragOffsetY);
+        
+        // Remove the temporary element after a short delay
+        setTimeout(() => document.body.removeChild(dragImage), 0);
       }
       
       function handleDragEnd() {
-        this.style.opacity = '1';
+        this.classList.remove('dragging');
         dragSourceElement = null;
+        
+        // Remove any drag-over classes
+        document.querySelectorAll('.drag-over').forEach(el => {
+          el.classList.remove('drag-over');
+        });
       }
       
-      // Move link to folder
-      function moveLinkToFolder(linkId, folderId) {
-        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
-        const linkIndex = links.findIndex(link => link.id === linkId);
-        
-        if (linkIndex !== -1) {
-          links[linkIndex].folderId = folderId;
-          localStorage.setItem('quickLinks', JSON.stringify(links));
-          loadContent();
-        }
+      // Open folder view
+      function openFolder(folderId) {
+        currentFolderId = folderId;
+        loadContent();
       }
       
       // Add new link
@@ -835,20 +826,12 @@
         const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
         
         // Check if folder has contents
-        const hasSubfolders = folders.some(f => f.parentId === folderId);
-        const hasLinks = links.some(l => l.folderId === folderId);
+        const folderLinks = links.filter(l => l.folderId === folderId);
         
-        if (hasSubfolders || hasLinks) {
-          if (!confirm('This folder contains items. Are you sure you want to delete it? All contents will be moved to the root.')) {
+        if (folderLinks.length > 0) {
+          if (!confirm('This folder contains links. Are you sure you want to delete it? All links will be moved to the root.')) {
             return;
           }
-          
-          // Move subfolders to root
-          folders.forEach(folder => {
-            if (folder.parentId === folderId) {
-              folder.parentId = null;
-            }
-          });
           
           // Move links to root
           links.forEach(link => {
@@ -907,12 +890,50 @@
         }
       });
       
-      // Back to root button
-      backToRootBtn.addEventListener('click', () => {
+      // Back button handler
+      backButton.addEventListener('click', () => {
         currentFolderId = null;
-        currentFolderIndicator.style.display = 'none';
         loadContent();
       });
+      
+      // Set up drag and drop for the entire content container
+      contentContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        // Add visual feedback for drop zone
+        contentContainer.classList.add('drag-over');
+      });
+      
+      contentContainer.addEventListener('dragleave', () => {
+        contentContainer.classList.remove('drag-over');
+      });
+      
+      contentContainer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        contentContainer.classList.remove('drag-over');
+        
+        const draggedId = e.dataTransfer.getData('text/plain');
+        if (draggedId) {
+          // If we're in a folder view, add to current folder
+          if (currentFolderId) {
+            moveLinkToFolder(draggedId, currentFolderId);
+          } else {
+            // Otherwise, remove from any folder (move to root)
+            moveLinkToFolder(draggedId, null);
+          }
+        }
+      });
+      
+      // Move link to folder
+      function moveLinkToFolder(linkId, folderId) {
+        const links = JSON.parse(localStorage.getItem('quickLinks') || '[]');
+        const linkIndex = links.findIndex(link => link.id === linkId);
+        
+        if (linkIndex !== -1) {
+          links[linkIndex].folderId = folderId;
+          localStorage.setItem('quickLinks', JSON.stringify(links));
+          loadContent();
+        }
+      }
       
       // Initial load
       initData();
