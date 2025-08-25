@@ -57,24 +57,126 @@ function checkSchedule() {
   const currentTime = now.getHours() * 60 + now.getMinutes();
   const currentWeekday = getCurrentWeekday();
   
+  // Reset all periods first
   document.querySelectorAll('.period').forEach(period => {
-    const start = parseTime(period.dataset.start);
-    const end = parseTime(period.dataset.end);
-    const weekdays = period.dataset.weekdays ? period.dataset.weekdays.split(',') : [];
+    period.classList.remove('active', 'upcoming');
+    period.innerHTML = period.dataset.name;
+  });
+  
+  // Get today's schedule
+  const schedule = JSON.parse(localStorage.getItem('schedule') || '[]');
+  const todaySchedule = schedule.filter(p => 
+    p.weekdays && p.weekdays.includes(currentWeekday)
+  );
+  
+  // If no classes today, show notification
+  if (todaySchedule.length === 0) {
+    showNextSchoolDayNotification();
+    return;
+  }
+  
+  let hasActivePeriod = false;
+  let hasUpcomingPeriod = false;
+  
+  // Check each period
+  todaySchedule.forEach(periodData => {
+    const periodElement = document.querySelector(`.period[data-name="${periodData.name}"][data-start="${periodData.start}"][data-end="${periodData.end}"]`);
+    if (!periodElement) return;
     
-    // Only highlight if it's the right weekday and time
-    if (weekdays.includes(currentWeekday) && currentTime >= start && currentTime <= end) {
-      period.classList.add('active');
+    const start = parseTime(periodData.start);
+    const end = parseTime(periodData.end);
+    
+    // Current period
+    if (currentTime >= start && currentTime <= end) {
+      hasActivePeriod = true;
+      periodElement.classList.add('active');
       const remaining = end - currentTime;
-      period.innerHTML = `${period.dataset.name} - ⌛ ${formatTimeRemaining(remaining)} left`;
-    } else {
-      period.classList.remove('active');
-      // Reset text if not active
-      if (!period.classList.contains('active')) {
-        period.innerHTML = period.dataset.name;
-      }
+      periodElement.innerHTML = `${periodData.name} - ⌛ ${formatTimeRemaining(remaining)} left`;
+    } 
+    // Upcoming period (within the next 30 minutes)
+    else if (currentTime < start && (start - currentTime) <= 30) {
+      hasUpcomingPeriod = true;
+      periodElement.classList.add('upcoming');
+      const untilStart = start - currentTime;
+      periodElement.innerHTML = `${periodData.name} - Starts in ${untilStart} min`;
     }
   });
+  
+  // If no active or upcoming periods, check if we're after the last period
+  if (!hasActivePeriod && !hasUpcomingPeriod) {
+    const lastPeriod = todaySchedule[todaySchedule.length - 1];
+    const lastPeriodEnd = parseTime(lastPeriod.end);
+    
+    if (currentTime > lastPeriodEnd) {
+      showNextSchoolDayNotification();
+    } else {
+      // Find the next period of the day
+      const nextPeriod = todaySchedule.find(p => parseTime(p.start) > currentTime);
+      if (nextPeriod) {
+        const nextPeriodElement = document.querySelector(`.period[data-name="${nextPeriod.name}"][data-start="${nextPeriod.start}"][data-end="${nextPeriod.end}"]`);
+        if (nextPeriodElement) {
+          const untilStart = parseTime(nextPeriod.start) - currentTime;
+          nextPeriodElement.classList.add('upcoming');
+          nextPeriodElement.innerHTML = `${nextPeriod.name} - Starts in ${untilStart} min`;
+        }
+      }
+    }
+  }
+}
+
+function showNextSchoolDayNotification() {
+  const notification = document.getElementById('nextDayNotification');
+  const now = new Date();
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  const currentWeekday = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  const schedule = JSON.parse(localStorage.getItem('schedule') || '[]');
+  
+  // Find the next school day with classes
+  let daysToAdd = 1;
+  let nextSchoolDay = null;
+  
+  while (daysToAdd <= 7 && !nextSchoolDay) {
+    const nextDayIndex = (currentWeekday + daysToAdd) % 7;
+    const nextDayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][nextDayIndex];
+    
+    const nextDaySchedule = schedule.filter(p => 
+      p.weekdays && p.weekdays.includes(nextDayAbbr)
+    );
+    
+    if (nextDaySchedule.length > 0) {
+      nextSchoolDay = {
+        dayIndex: nextDayIndex,
+        dayAbbr: nextDayAbbr,
+        schedule: nextDaySchedule
+      };
+    } else {
+      daysToAdd++;
+    }
+  }
+  
+  if (nextSchoolDay) {
+    // Calculate time until next school day starts
+    const firstPeriodStart = parseTime(nextSchoolDay.schedule[0].start);
+    
+    // Time until midnight tonight (in minutes)
+    const minutesUntilMidnight = (24 * 60) - currentTime;
+    
+    // Time from midnight to first period start
+    const minutesFromMidnightToFirstPeriod = firstPeriodStart;
+    
+    // Total minutes until next school day starts
+    const totalMinutes = (daysToAdd - 1) * 24 * 60 + minutesUntilMidnight + minutesFromMidnightToFirstPeriod;
+    
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    
+    notification.innerHTML = `Next school day (${nextSchoolDay.dayAbbr}) starts in ${hours} hours and ${minutes} minutes`;
+    notification.style.display = 'block';
+  } else {
+    notification.innerHTML = 'No upcoming school days found';
+    notification.style.display = 'block';
+  }
 }
 
 function renderSchedule() {
@@ -89,6 +191,7 @@ function renderSchedule() {
   
   if (todaySchedule.length === 0) {
     container.innerHTML = `<div class="no-classes">No classes scheduled for ${currentWeekday}</div>`;
+    showNextSchoolDayNotification();
     return;
   }
   
