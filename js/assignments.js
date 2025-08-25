@@ -39,16 +39,22 @@ function setupEventListeners() {
 // Check for past due assignments and prompt user
 function checkPastDueAssignments() {
   const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+  const now = new Date(); // Current date and time
   
   for (const className in allAssignments) {
     allAssignments[className].forEach((assignment, index) => {
-      const dueDate = new Date(assignment.due);
-      dueDate.setHours(0, 0, 0, 0);
+      let dueDate;
+      try {
+        // Try to parse as ISO string (with time)
+        dueDate = new Date(assignment.due);
+      } catch (e) {
+        // Fallback for old format (date only)
+        const [year, month, day] = assignment.due.split('-').map(Number);
+        dueDate = new Date(year, month - 1, day, 23, 59, 0); // Default to 11:59 PM
+      }
       
       // Check if assignment is past due, not completed, and doesn't have a status note
-      if (!assignment.completed && dueDate < today && !assignment.statusNote) {
+      if (!assignment.completed && dueDate < now && !assignment.statusNote) {
         const response = confirm(`Assignment "${assignment.title}" in ${className} is past due. Is it missing or not graded yet?\n\nClick OK if it's missing, Cancel if it's not graded yet.`);
         
         // Update the assignment with status note
@@ -108,11 +114,20 @@ function loadCategories(className) {
 function handleFormSubmit(e) {
   e.preventDefault();
   
+  // Get time value or default to 23:59 (11:59 PM)
+  let dueTime = document.getElementById('due-time').value.trim();
+  if (!dueTime) {
+    dueTime = "23:59"; // Default to 11:59 PM if no time specified
+  }
+  
+  // Combine date and time
+  const dueDateTime = `${form['due-date'].value}T${dueTime}`;
+  
   const assignment = {
     class: classSelect.value,
     title: form['assignment-title'].value.trim(),
     link: form['assignment-link'].value.trim(),
-    due: form['due-date'].value,
+    due: dueDateTime, // Now storing both date and time
     category: categorySelect.value,
     points: parseInt(form['points'].value, 10),
     completed: false,
@@ -120,7 +135,7 @@ function handleFormSubmit(e) {
     statusNote: null
   };
 
-  if (!assignment.title || !assignment.due || isNaN(assignment.points)) {
+  if (!assignment.title || !form['due-date'].value || isNaN(assignment.points)) {
     alert('Please fill in all required fields');
     return;
   }
@@ -246,13 +261,27 @@ function renderAssignmentList(assignments) {
   setupAssignmentEventListeners();
 }
 
-function formatDate(dateString) {
-  // Parse the date string (assuming YYYY-MM-DD format)
-  const [year, month, day] = dateString.split('-').map(Number);
-  const date = new Date(year, month - 1, day); // month is 0-indexed in JavaScript
-  
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return date.toLocaleDateString(undefined, options);
+function formatDate(dateTimeString) {
+  try {
+    const date = new Date(dateTimeString);
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return date.toLocaleDateString(undefined, options);
+  } catch (e) {
+    // Fallback for old date format (without time)
+    const [year, month, day] = dateTimeString.split('-').map(Number);
+    if (year && month && day) {
+      const date = new Date(year, month - 1, day);
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return date.toLocaleDateString(undefined, options);
+    }
+    return dateTimeString; // Return as-is if format is unrecognized
+  }
 }
 
 function setupAssignmentEventListeners() {
@@ -402,3 +431,96 @@ function getLetterGrade(percentage) {
   
   return "N/A"; // Percentage doesn't match any grade level
 }
+
+function calculateClassGrade(className) {
+  // Check if class still exists
+  const classes = JSON.parse(localStorage.getItem("classes") || "[]");
+  const classExists = classes.some(c => c.name === className);
+  
+  if (!classExists) {
+    return 0; // Return 0 if class has been deleted
+  }
+  
+  const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}")[className] || {};
+  const assignments = JSON.parse(localStorage.getItem("assignments") || "{}")[className] || [];
+
+  const categoryTotals = {};
+  const categoryEarned = {};
+
+  // Calculate total points and earned points for each category
+  assignments.forEach(a => {
+    if (!a.completed || a.grade == null) return;
+    const cat = a.category;
+    categoryTotals[cat] = (categoryTotals[cat] || 0) + a.points;
+    categoryEarned[cat] = (categoryEarned[cat] || 0) + (a.grade / 100) * a.points;
+  });
+
+  let weightedSum = 0;
+  let totalWeight = 0;
+
+  // Only consider categories that have graded assignments
+  for (const cat in categoryEarned) {
+    const weight = weights[cat] || 0;
+    const earned = categoryEarned[cat];
+    const total = categoryTotals[cat];
+    
+    // Calculate category average (0 if no assignments in category)
+    const avg = total > 0 ? earned / total : 0;
+    
+    // Add to weighted sum only if there are graded assignments
+    if (total > 0) {
+      weightedSum += avg * weight;
+      totalWeight += weight;
+    }
+  }
+
+  // Return 0 if no graded assignments exist
+  return totalWeight > 0 ? (weightedSum / totalWeight) * 100 : 0;
+}
+
+function updateGradeDisplay(className) {
+  const grade = calculateClassGrade(className);
+  const letterGrade = getLetterGrade(grade);
+  const display = document.getElementById('gpa-display');
+  if (display) {
+    const roundedGrade = Math.round(grade);
+    const exactGrade = grade.toFixed(2);
+    display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (Exact: ${exactGrade}%) - ${letterGrade}`;
+  }
+}
+
+// Initialize grade display when class selection changes
+document.addEventListener("DOMContentLoaded", () => {
+  const classSelect = document.getElementById("class-select");
+  if (classSelect) {
+    // Filter out any classes that might have been deleted
+    const classes = JSON.parse(localStorage.getItem("classes") || "[]");
+    const currentClasses = classes.map(c => c.name);
+    
+    // Remove options for classes that no longer exist
+    Array.from(classSelect.options).forEach(option => {
+      if (option.value && !currentClasses.includes(option.value)) {
+        classSelect.removeChild(option);
+      }
+    });
+    
+    classSelect.addEventListener("change", () => {
+      updateGradeDisplay(classSelect.value);
+    });
+
+    // Update display for initially selected class if it still exists
+    if (classSelect.value && currentClasses.includes(classSelect.value)) {
+      updateGradeDisplay(classSelect.value);
+    } else if (classSelect.options.length > 0) {
+      // Select the first available class if the current selection is invalid
+      classSelect.value = classSelect.options[0].value;
+      updateGradeDisplay(classSelect.value);
+    } else {
+      // No classes available
+      const display = document.getElementById("gpa-display");
+      if (display) {
+        display.textContent = "📊 No classes available";
+      }
+    }
+  }
+});
