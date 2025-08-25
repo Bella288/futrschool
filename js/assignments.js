@@ -68,9 +68,15 @@ function checkPastDueAssignments() {
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
       }
       
-      // If assignment was marked as missing but now has a grade, change status to "nm"
+      // If assignment was marked as missing but now has a grade, remove status note
       if (assignment.completed && assignment.grade !== null && assignment.statusNote === "m") {
-        assignment.statusNote = "nm";
+        assignment.statusNote = null;
+        localStorage.setItem("assignments", JSON.stringify(allAssignments));
+      }
+      
+      // If assignment was marked as not graded yet but now has a grade, remove status note
+      if (assignment.completed && assignment.grade !== null && assignment.statusNote === "nm") {
+        assignment.statusNote = null;
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
       }
     });
@@ -132,7 +138,7 @@ function handleFormSubmit(e) {
     points: parseInt(form['points'].value, 10),
     completed: false,
     grade: null,
-    statusNote: null
+    statusNote: null // Always set to null for new assignments
   };
 
   if (!assignment.title || !form['due-date'].value || isNaN(assignment.points)) {
@@ -298,10 +304,8 @@ function setupAssignmentEventListeners() {
         assignments[index].completed = true;
         assignments[index].grade = parseFloat(grade);
         
-        // If assignment was marked as missing but now has a grade, change status to "nm"
-        if (assignments[index].statusNote === "m") {
-          assignments[index].statusNote = "nm";
-        }
+        // Remove any status note when assignment is completed and graded
+        assignments[index].statusNote = null;
         
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         updateClassGrade(className);
@@ -322,6 +326,10 @@ function setupAssignmentEventListeners() {
       const newGrade = prompt(`Edit grade (current: ${currentGrade}):`, currentGrade);
       if (newGrade !== null && !isNaN(newGrade)) {
         assignments[index].grade = parseFloat(newGrade);
+        
+        // Remove any status note when assignment is graded
+        assignments[index].statusNote = null;
+        
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         updateClassGrade(className);
         loadAssignments(className);
