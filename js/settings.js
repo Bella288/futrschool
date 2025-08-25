@@ -10,6 +10,36 @@ const classListContainer = document.getElementById("class-list-container");
 const gradingSchemeContainer = document.getElementById("grading-scheme-container");
 
 // ========================
+// EXPORT TRACKING FUNCTIONS
+// ========================
+
+/**
+ * Checks if the last export was more than 3 days ago and shows a warning if needed
+ */
+function checkLastExport() {
+  const lastExp = localStorage.getItem("lastExp");
+  
+  if (lastExp) {
+    const lastExportDate = new Date(lastExp);
+    const currentDate = new Date();
+    const daysSinceLastExport = Math.floor((currentDate - lastExportDate) / (1000 * 60 * 60 * 24));
+    
+    if (daysSinceLastExport > 3) {
+      const shouldExport = confirm(
+        `Last Export was over 3 days ago\n\nYour last export was on ${lastExportDate.toLocaleDateString()}. Do you want to export now?`
+      );
+      
+      if (shouldExport) {
+        exportData();
+      } else {
+        // Update last export date to now when user selects "No"
+        localStorage.setItem("lastExp", new Date().toISOString());
+      }
+    }
+  }
+}
+
+// ========================
 // GRADING SCHEME FUNCTIONS
 // ========================
 
@@ -232,6 +262,9 @@ function exportData() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  
+  // Update last export date
+  localStorage.setItem("lastExp", new Date().toISOString());
 }
 
 /**
@@ -654,6 +687,9 @@ function saveSchedule() {
  * Sets up all event listeners for the settings page
  */
 function setupSettingsPage() {
+  // Check if we need to show the export reminder
+  checkLastExport();
+  
   // Initialize grading scheme section
   renderGradingScheme();
   
