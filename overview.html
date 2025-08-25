@@ -199,8 +199,14 @@
             const dueDate = new Date(assignment.due);
             dueDate.setHours(0, 0, 0, 0);
             
+            // Count as missing if:
+            // 1. It's past due AND not completed AND
+            // 2. Either has statusNote "m" OR no statusNote at all
+            // 3. Ignore if statusNote is "nm" (not graded yet)
             if (!assignment.completed && dueDate < today) {
-              missingAssignments++;
+              if (assignment.statusNote === "m" || !assignment.statusNote) {
+                missingAssignments++;
+              }
             }
           });
         }
@@ -261,7 +267,7 @@
           <div class="stat-card">
             <h3>Missing Assignments</h3>
             <div class="stat-value">${missingAssignments}</div>
-            <p class="stat-description">Past due assignments without grades</p>
+            <p class="stat-description">Past due assignments marked as missing</p>
           </div>
           <div class="stat-card">
             <h3>Average Grade</h3>
