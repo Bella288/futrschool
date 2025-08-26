@@ -31,27 +31,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupEventListeners() {
   // Form submission
-  form.addEventListener('submit', handleFormSubmit);
+  if (form) {
+    form.addEventListener('submit', handleFormSubmit);
+  }
   
   // Class selection change
-  classSelect.addEventListener('change', handleClassChange);
+  if (classSelect) {
+    classSelect.addEventListener('change', handleClassChange);
+  }
   
   // Search functionality
-  searchBtn.addEventListener('click', handleSearch);
-  clearSearchBtn.addEventListener('click', clearSearch);
-  searchInput.addEventListener('keyup', (e) => e.key === 'Enter' && handleSearch());
+  if (searchBtn) {
+    searchBtn.addEventListener('click', handleSearch);
+  }
+  
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', clearSearch);
+  }
+  
+  if (searchInput) {
+    searchInput.addEventListener('keyup', (e) => e.key === 'Enter' && handleSearch());
+  }
   
   // Sorting
-  sortBySelect.addEventListener('change', handleSortChange);
+  if (sortBySelect) {
+    sortBySelect.addEventListener('change', handleSortChange);
+  }
   
-  // Status dialog buttons
-  missingBtn.addEventListener('click', () => handleStatusResponse('m'));
-  notGradedBtn.addEventListener('click', () => handleStatusResponse('nm'));
-  cancelBtn.addEventListener('click', () => handleStatusResponse(null));
+  // Status dialog buttons (only if they exist)
+  if (missingBtn && notGradedBtn && cancelBtn) {
+    missingBtn.addEventListener('click', () => handleStatusResponse('m'));
+    notGradedBtn.addEventListener('click', () => handleStatusResponse('nm'));
+    cancelBtn.addEventListener('click', () => handleStatusResponse(null));
+  }
 }
 
 // Check for past due assignments and prompt user
 function checkPastDueAssignments() {
+  // Only run on dashboard page where the dialog exists
+  if (!statusDialog) return;
+  
   const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
   const now = new Date(); // Current date and time
   
@@ -103,6 +122,7 @@ function checkPastDueAssignments() {
 
 // Show the status dialog for the current past due assignment
 function showStatusDialog() {
+  if (!statusDialog || !dialogMessage) return;
   if (currentPastDueIndex >= pastDueAssignments.length) return;
   
   const { className, assignment } = pastDueAssignments[currentPastDueIndex];
@@ -112,6 +132,7 @@ function showStatusDialog() {
 
 // Handle the response from the status dialog
 function handleStatusResponse(response) {
+  if (!statusDialog) return;
   if (currentPastDueIndex >= pastDueAssignments.length) return;
   
   const { className, assignmentIndex } = pastDueAssignments[currentPastDueIndex];
@@ -140,6 +161,8 @@ function getSelectedClass() {
 }
 
 function loadClasses() {
+  if (!classSelect) return;
+  
   const classes = JSON.parse(localStorage.getItem('classes') || '[]');
   classSelect.innerHTML = classes.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
   
@@ -152,17 +175,22 @@ function loadClasses() {
 }
 
 function loadCategories(className) {
+  if (!categorySelect) return;
+  
   const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}");
   const categories = weights[className] ? Object.keys(weights[className]) : [];
   categorySelect.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
   
   // If no categories exist for this class, disable the form
-  if (categories.length === 0) {
-    form.querySelector('button[type="submit"]').disabled = true;
-    form.querySelector('button[type="submit"]').title = "No categories defined for this class. Please set up categories in Settings first.";
-  } else {
-    form.querySelector('button[type="submit"]').disabled = false;
-    form.querySelector('button[type="submit"]').title = "";
+  if (form) {
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (categories.length === 0) {
+      submitButton.disabled = true;
+      submitButton.title = "No categories defined for this class. Please set up categories in Settings first.";
+    } else {
+      submitButton.disabled = false;
+      submitButton.title = "";
+    }
   }
 }
 
@@ -171,7 +199,7 @@ function handleFormSubmit(e) {
   e.preventDefault();
   
   // Get time value or default to 23:59 (11:59 PM)
-  let dueTime = document.getElementById('due-time').value.trim();
+  let dueTime = document.getElementById('due-time')?.value.trim();
   if (!dueTime) {
     dueTime = "23:59"; // Default to 11:59 PM if no time specified
   }
@@ -208,11 +236,15 @@ function handleFormSubmit(e) {
 
 // Search functionality
 function handleSearch() {
+  if (!searchInput) return;
+  
   currentSearchTerm = searchInput.value.trim();
   loadAssignments(classSelect.value);
 }
 
 function clearSearch() {
+  if (!searchInput) return;
+  
   searchInput.value = '';
   currentSearchTerm = '';
   loadAssignments(classSelect.value);
@@ -264,6 +296,8 @@ function sortAssignments(assignments, sortMethod) {
 
 // Assignment display
 function loadAssignments(className) {
+  if (!list) return;
+  
   const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
   let assignments = allAssignments[className] || [];
   
@@ -275,6 +309,8 @@ function loadAssignments(className) {
 }
 
 function renderAssignmentList(assignments) {
+  if (!list) return;
+  
   list.innerHTML = "";
 
   if (assignments.length === 0) {
@@ -341,6 +377,8 @@ function formatDate(dateTimeString) {
 }
 
 function setupAssignmentEventListeners() {
+  if (!list) return;
+  
   // Mark complete
   list.querySelectorAll(".complete-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -424,6 +462,8 @@ function setupAssignmentEventListeners() {
 
 // Grade calculation
 function updateClassGrade(className) {
+  if (!gpaDisplay) return;
+  
   const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}")[className] || {};
   const assignments = JSON.parse(localStorage.getItem("assignments") || "{}")[className] || [];
 
@@ -455,9 +495,7 @@ function updateClassGrade(className) {
   const finalGrade = totalWeight > 0 ? (weightedSum / totalWeight) * 100 : 0;
   const letterGrade = getLetterGrade(finalGrade);
   
-  if (gpaDisplay) {
-    gpaDisplay.textContent = `📊 Grade for ${className}: ${finalGrade.toFixed(2)}% - ${letterGrade}`;
-  }
+  gpaDisplay.textContent = `📊 Grade for ${className}: ${finalGrade.toFixed(2)}% - ${letterGrade}`;
 }
 
 // Helper functions
