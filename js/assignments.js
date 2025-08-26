@@ -9,9 +9,18 @@ const searchBtn = document.getElementById('search-btn');
 const clearSearchBtn = document.getElementById('clear-search-btn');
 const sortBySelect = document.getElementById('sort-by');
 
+// Status Dialog Elements
+const statusDialog = document.getElementById('status-dialog');
+const dialogMessage = document.getElementById('dialog-message');
+const missingBtn = document.getElementById('missing-btn');
+const notGradedBtn = document.getElementById('not-graded-btn');
+const cancelBtn = document.getElementById('cancel-status-btn');
+
 // State variables
 let currentSearchTerm = '';
 let currentSortMethod = 'due-asc';
+let pastDueAssignments = [];
+let currentPastDueIndex = 0;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,6 +43,11 @@ function setupEventListeners() {
   
   // Sorting
   sortBySelect.addEventListener('change', handleSortChange);
+  
+  // Status dialog buttons
+  missingBtn.addEventListener('click', () => handleStatusResponse('m'));
+  notGradedBtn.addEventListener('click', () => handleStatusResponse('nm'));
+  cancelBtn.addEventListener('click', () => handleStatusResponse(null));
 }
 
 // Check for past due assignments and prompt user
@@ -41,6 +55,10 @@ function checkPastDueAssignments() {
   const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
   const now = new Date(); // Current date and time
   
+  // Reset the past due assignments array
+  pastDueAssignments = [];
+  
+  // Find all past due assignments
   for (const className in allAssignments) {
     allAssignments[className].forEach((assignment, index) => {
       let dueDate;
@@ -55,17 +73,11 @@ function checkPastDueAssignments() {
       
       // Check if assignment is past due, not completed, and doesn't have a status note
       if (!assignment.completed && dueDate < now && !assignment.statusNote) {
-        const response = confirm(`Assignment "${assignment.title}" in ${className} is past due. Is it missing or not graded yet?\n\nClick OK if it's missing, Cancel if it's not graded yet.`);
-        
-        // Update the assignment with status note
-        if (response) {
-          assignment.statusNote = "m"; // Missing
-        } else {
-          assignment.statusNote = "nm"; // Not graded yet
-        }
-        
-        // Save the updated assignments
-        localStorage.setItem("assignments", JSON.stringify(allAssignments));
+        pastDueAssignments.push({
+          className,
+          assignmentIndex: index,
+          assignment
+        });
       }
       
       // If assignment was marked as missing but now has a grade, remove status note
@@ -80,6 +92,44 @@ function checkPastDueAssignments() {
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
       }
     });
+  }
+  
+  // If there are past due assignments, show the first one
+  if (pastDueAssignments.length > 0) {
+    currentPastDueIndex = 0;
+    showStatusDialog();
+  }
+}
+
+// Show the status dialog for the current past due assignment
+function showStatusDialog() {
+  if (currentPastDueIndex >= pastDueAssignments.length) return;
+  
+  const { className, assignment } = pastDueAssignments[currentPastDueIndex];
+  dialogMessage.textContent = `Assignment "${assignment.title}" in ${className} is past due. Is it missing or not graded yet?`;
+  statusDialog.showModal();
+}
+
+// Handle the response from the status dialog
+function handleStatusResponse(response) {
+  if (currentPastDueIndex >= pastDueAssignments.length) return;
+  
+  const { className, assignmentIndex } = pastDueAssignments[currentPastDueIndex];
+  const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+  
+  if (response) {
+    allAssignments[className][assignmentIndex].statusNote = response;
+    localStorage.setItem("assignments", JSON.stringify(allAssignments));
+  }
+  
+  statusDialog.close();
+  
+  // Move to the next past due assignment
+  currentPastDueIndex++;
+  
+  // If there are more past due assignments, show the next one
+  if (currentPastDueIndex < pastDueAssignments.length) {
+    setTimeout(showStatusDialog, 300);
   }
 }
 
