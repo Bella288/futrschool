@@ -462,7 +462,7 @@ function setupAssignmentEventListeners() {
         return;
       }
       
-      if (confirm("Are you sure you want to delete this assignment?")) {
+      if (confirm("Are you sure you want to delete "${a.title}?"")) {
         assignments.splice(actualIndex, 1);
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         loadAssignments(className);
