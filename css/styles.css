@@ -223,3 +223,72 @@ input, select, button {
   padding: 2rem;
   color: #666;
 }
+/* Status Dialog Styles */
+.status-dialog {
+  border: none;
+  border-radius: 10px;
+  padding: 0;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.status-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.dialog-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.dialog-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.dialog-content p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.dialog-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dialog-btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.dialog-btn.missing {
+  background-color: #ff5252;
+  color: white;
+}
+
+.dialog-btn.missing:hover {
+  background-color: #ff0000;
+}
+
+.dialog-btn.not-graded {
+  background-color: #ffb142;
+  color: white;
+}
+
+.dialog-btn.not-graded:hover {
+  background-color: #ff9f1a;
+}
+
+.dialog-btn.cancel {
+  background-color: #ddd;
+  color: #333;
+}
+
+.dialog-btn.cancel:hover {
+  background-color: #ccc;
+}
