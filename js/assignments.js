@@ -138,7 +138,7 @@ function showStatusDialog() {
   if (currentPastDueIndex >= pastDueAssignments.length) return;
   
   const { className, assignment } = pastDueAssignments[currentPastDueIndex];
-  dialogMessage.textContent = `Assignment "${assignment.title}" in ${className} is past due. Is it missing or not graded yet?`;
+  dialogMessage.textContent = `Assignment "${assignment.title}" in class "${className}" is past due. Is it missing or not graded yet?`;
   statusDialog.showModal();
 }
 
