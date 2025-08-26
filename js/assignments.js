@@ -1,20 +1,6 @@
 // DOM Elements
-const form = document.getElementById('add-assignment-form');
-const list = document.getElementById('assignment-list');
-const classSelect = document.getElementById('class-select');
-const categorySelect = document.getElementById('category');
-const gpaDisplay = document.getElementById("gpa-display");
-const searchInput = document.getElementById('search-input');
-const searchBtn = document.getElementById('search-btn');
-const clearSearchBtn = document.getElementById('clear-search-btn');
-const sortBySelect = document.getElementById('sort-by');
-
-// Status Dialog Elements
-const statusDialog = document.getElementById('status-dialog');
-const dialogMessage = document.getElementById('dialog-message');
-const missingBtn = document.getElementById('missing-btn');
-const notGradedBtn = document.getElementById('not-graded-btn');
-const cancelBtn = document.getElementById('cancel-status-btn');
+let form, list, classSelect, categorySelect, gpaDisplay, searchInput, searchBtn, clearSearchBtn, sortBySelect;
+let statusDialog, dialogMessage, missingBtn, notGradedBtn, cancelBtn;
 
 // State variables
 let currentSearchTerm = '';
@@ -24,10 +10,31 @@ let currentPastDueIndex = 0;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-  loadClasses();
+  initializeElements();
   setupEventListeners();
+  loadClasses();
   checkPastDueAssignments();
 });
+
+function initializeElements() {
+  // Get references to all DOM elements
+  form = document.getElementById('add-assignment-form');
+  list = document.getElementById('assignment-list');
+  classSelect = document.getElementById('class-select');
+  categorySelect = document.getElementById('category');
+  gpaDisplay = document.getElementById("gpa-display");
+  searchInput = document.getElementById('search-input');
+  searchBtn = document.getElementById('search-btn');
+  clearSearchBtn = document.getElementById('clear-search-btn');
+  sortBySelect = document.getElementById('sort-by');
+  
+  // Status Dialog Elements
+  statusDialog = document.getElementById('status-dialog');
+  dialogMessage = document.getElementById('dialog-message');
+  missingBtn = document.getElementById('missing-btn');
+  notGradedBtn = document.getElementById('not-graded-btn');
+  cancelBtn = document.getElementById('cancel-status-btn');
+}
 
 function setupEventListeners() {
   // Form submission
@@ -116,13 +123,18 @@ function checkPastDueAssignments() {
   // If there are past due assignments, show the first one
   if (pastDueAssignments.length > 0) {
     currentPastDueIndex = 0;
-    showStatusDialog();
+    // Use a small timeout to ensure the DOM is fully rendered
+    setTimeout(showStatusDialog, 100);
   }
 }
 
 // Show the status dialog for the current past due assignment
 function showStatusDialog() {
-  if (!statusDialog || !dialogMessage) return;
+  if (!statusDialog || !dialogMessage) {
+    console.error("Status dialog elements not found");
+    return;
+  }
+  
   if (currentPastDueIndex >= pastDueAssignments.length) return;
   
   const { className, assignment } = pastDueAssignments[currentPastDueIndex];
