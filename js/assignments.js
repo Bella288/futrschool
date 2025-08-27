@@ -228,7 +228,9 @@ function handleFormSubmit(e) {
     points: parseInt(form['points'].value, 10),
     completed: false,
     grade: null,
-    statusNote: null // Always set to null for new assignments
+    statusNote: null, // Always set to null for new assignments
+    comment: null,     // New field for comments
+    commentDate: null  // New field for comment date
   };
 
   if (!assignment.title || !form['due-date'].value || isNaN(assignment.points)) {
@@ -334,6 +336,8 @@ function renderAssignmentList(assignments) {
 
   assignments.forEach((a, i) => {
     const statusIcon = a.statusNote === "m" ? "⚠️ Missing" : (a.statusNote === "nm" ? "⏳ Not Graded" : "");
+    const commentButton = a.comment ? `<button class="comment-btn" data-index="${i}">💬 View Comment</button>` : '';
+    
     const item = document.createElement("div");
     item.className = `assignment-item ${a.completed ? 'completed' : ''}`;
     item.innerHTML = `
@@ -349,7 +353,7 @@ function renderAssignmentList(assignments) {
       <div class="assignment-actions">
         ${a.link ? `<a href="${a.link}" target="_blank" class="assignment-link">🔗 Link</a>` : ''}
         ${a.completed 
-          ? `<span class="assignment-grade">✅ Grade: ${a.grade}%</span>`
+          ? `<span class="assignment-grade">✅ Grade: ${a.grade}% ${commentButton}</span>`
           : ''}
         <div class="action-buttons">
           ${a.completed 
@@ -399,10 +403,19 @@ function setupAssignmentEventListeners() {
       const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
       const assignments = allAssignments[className] || [];
       
+      // Get grade and comment
       const grade = prompt("Enter grade received (out of 100):");
       if (grade !== null && !isNaN(grade)) {
+        const comment = prompt("Add a comment about this assignment (optional):");
+        
         assignments[index].completed = true;
         assignments[index].grade = parseFloat(grade);
+        
+        // Add comment if provided
+        if (comment && comment.trim() !== "") {
+          assignments[index].comment = comment.trim();
+          assignments[index].commentDate = new Date().toLocaleString();
+        }
         
         // Remove any status note when assignment is completed and graded
         assignments[index].statusNote = null;
@@ -422,10 +435,19 @@ function setupAssignmentEventListeners() {
       const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
       const assignments = allAssignments[className] || [];
       const currentGrade = assignments[index].grade;
+      const currentComment = assignments[index].comment || "";
       
       const newGrade = prompt(`Edit grade (current: ${currentGrade}):`, currentGrade);
       if (newGrade !== null && !isNaN(newGrade)) {
+        const newComment = prompt(`Edit comment (current: ${currentComment}):`, currentComment);
+        
         assignments[index].grade = parseFloat(newGrade);
+        
+        // Update comment if provided
+        if (newComment !== null) {
+          assignments[index].comment = newComment.trim();
+          assignments[index].commentDate = new Date().toLocaleString();
+        }
         
         // Remove any status note when assignment is graded
         assignments[index].statusNote = null;
@@ -433,6 +455,25 @@ function setupAssignmentEventListeners() {
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         updateClassGrade(className);
         loadAssignments(className);
+      }
+    });
+  });
+
+  // View comment
+  list.querySelectorAll(".comment-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const index = btn.dataset.index;
+      const className = classSelect.value;
+      const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+      const assignments = allAssignments[className] || [];
+      const assignment = assignments[index];
+      
+      // Use the global function to show the comment dialog
+      if (typeof window.showAssignmentComment === 'function') {
+        window.showAssignmentComment(assignment.title, assignment.comment, assignment.commentDate);
+      } else {
+        // Fallback to alert if the dialog function isn't available
+        alert(`Comment for "${assignment.title}":\n\n${assignment.comment || "No comment provided."}\n\nAdded on: ${assignment.commentDate || "Unknown date"}`);
       }
     });
   });
