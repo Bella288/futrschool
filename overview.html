@@ -178,7 +178,7 @@
     </section>
   </main>
   
- <script>
+  <script>
     // Overview functionality
     document.addEventListener('DOMContentLoaded', () => {
       const statsContainer = document.getElementById('stats-container');
@@ -233,24 +233,17 @@
         const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
         const averageLetterGrade = getLetterGrade(averageGrade);
         
-        // Calculate GPA correctly - convert each class grade to GPA and then average
+        // Calculate GPA correctly - use the average grade to find the GPA
         let gpa = 0;
         if (gradingScheme.length > 0 && classCount > 0) {
-          let totalGpa = 0;
-          let gpaCount = 0;
+          // Find the GPA entry that matches the average grade
+          const gpaEntry = gradingScheme.find(grade => 
+            averageGrade >= grade.min && averageGrade <= grade.max
+          );
           
-          // Calculate GPA for each class based on letter grade
-          classGrades.forEach(cls => {
-            const letterGrade = getLetterGrade(cls.grade);
-            const gpaEntry = gradingScheme.find(grade => grade.letter === letterGrade);
-            
-            if (gpaEntry && gpaEntry.gpa !== undefined) {
-              totalGpa += parseFloat(gpaEntry.gpa);
-              gpaCount++;
-            }
-          });
-          
-          gpa = gpaCount > 0 ? totalGpa / gpaCount : 0;
+          if (gpaEntry && gpaEntry.gpa !== undefined) {
+            gpa = parseFloat(gpaEntry.gpa);
+          }
         }
         
         // Update stats display
