@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  
-  <title>Assignment Dashboard</title>
+  <title>Assignment Dashboard | GradeLine</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="icon" type="image/png" href="/assets/icons/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
@@ -60,97 +59,251 @@
       right: 15px;
       top: 10px;
     }
-    .close-button:hover {
+    .close-button:hover,
+    .close-button:focus {
       color: black;
+      text-decoration: none;
+    }
+    
+    /* Dyslexia-friendly font option */
+    .dyslexia-mode {
+        font-family: "OpenDyslexic", Arial, sans-serif;
+        letter-spacing: 0.05em;
+        line-height: 1.6;
+    }
+    
+    /* Skip link styling */
+    .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #000;
+        color: white;
+        padding: 8px;
+        z-index: 10000;
+        transition: top 0.3s;
+    }
+    
+    .skip-link:focus {
+        top: 0;
+    }
+    
+    /* Form accessibility improvements */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    
+    /* Focus styles for better keyboard navigation */
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid #0066cc;
+      outline-offset: 2px;
+    }
+    
+    /* Dialog styles */
+    .status-dialog {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 1003;
+      display: none;
+    }
+    
+    .status-dialog[open] {
+      display: block;
+    }
+    
+    .dialog-content {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .dialog-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    
+    .dialog-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .dialog-btn.missing {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    
+    .dialog-btn.not-graded {
+      background-color: #e2e3e5;
+      color: #383d41;
+    }
+    
+    .dialog-btn.cancel {
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+    
+    /* Dyslexia toggle button */
+    #dyslexia-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
-  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
-       alt="About" class="about-button" title="about the creator and page" id="aboutBtn">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   
-  <nav class="navbar">
+  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
+       alt="About GradeLine" class="about-button" title="About the creator and page" id="aboutBtn">
+  
+  <nav class="navbar" aria-label="Main navigation">
     <a href="index.html">🏫 Class Setup</a>
-    <a href="dashboard.html" class="active">📋 Dashboard</a>
+    <a href="dashboard.html" class="active" aria-current="page">📋 Dashboard</a>
     <a href="schedule.html">⏰ Schedule</a>
     <a href="overview.html">📊 Overview</a>
     <a href="quicklinks.html">🔗 Quick Links</a>
     <a href="settings.html">⚙️ Settings</a>
     <a href="policies.html">📑 Policies</a>
   </nav>
-  <header>
-    <h1>📚 Assignment Dashboard</h1>
-  </header>
+  
+  <button id="dyslexia-toggle" aria-pressed="false">Dyslexia-friendly font</button>
+  
+  <main id="main-content">
+    <header>
+      <h1>📚 Assignment Dashboard</h1>
+    </header>
 
-  <!-- About Modal -->
-  <div id="aboutModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <h2>About GradeLine</h2>
-      <p><strong>Creator:</strong> Bella Lawrence</p>
-      <p><strong>YouTube:</strong> <a href="https://youtube.com/@SerialDesignationN-BL" target="_blank">youtube.com/@SerialDesignationN-BL</a></p>
-      <p><strong>Instagram:</strong> @q_law09</p>
-      <p><strong>Email:</strong> barbar288.2021@gmail.com</p>
-      <p><strong>Source Code:</strong> <a href="https://github.com/Bella288/futrschool" target="_blank">github.com/Bella288/futrschool</a></p>
-      <hr>
-      <p><strong>Why I made it:</strong> To help me and others keep track of their grades and schedules.</p>
-      <p><strong>Other use cases:</strong> Teachers can track overall average grade by class</p>
-      <p><strong>Features:</strong> Schedule view, classes and assignments, weighted categories, auto-grade calculation, and more</p>
-      <hr>
-      <p><strong>My Bio:</strong> Hey! I'm Bella Lawrence, a developer in the wonderful city of Fort Wayne, Indiana. I live with my two cats, Hermione and Barley, my dog, Pebbles, and my rabbit, Buttercup.</p>
+    <!-- About Modal -->
+    <div id="aboutModal" class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+      <div class="modal-content">
+        <button class="close-button" aria-label="Close dialog">&times;</button>
+        <h2 id="modal-title">About GradeLine</h2>
+        <p><strong>Creator:</strong> Bella Lawrence</p>
+        <p><strong>YouTube:</strong> <a href="https://youtube.com/@SerialDesignationN-BL" target="_blank" rel="noopener noreferrer">youtube.com/@SerialDesignationN-BL</a></p>
+        <p><strong>Instagram:</strong> @q_law09</p>
+        <p><strong>Email:</strong> <a href="mailto:barbar288.2021@gmail.com">barbar288.2021@gmail.com</a></p>
+        <p><strong>Source Code:</strong> <a href="https://github.com/Bella288/futrschool" target="_blank" rel="noopener noreferrer">github.com/Bella288/futrschool</a></p>
+        <hr>
+        <p><strong>Why I made it:</strong> To help me and others keep track of their grades and schedules.</p>
+        <p><strong>Other use cases:</strong> Teachers can track overall average grade by class</p>
+        <p><strong>Features:</strong> Schedule view, classes and assignments, weighted categories, auto-grade calculation, and more</p>
+        <hr>
+        <p><strong>My Bio:</strong> Hey! I'm Bella Lawrence, a developer in the wonderful city of Fort Wayne, Indiana. I live with my two cats, Hermione and Barley, my dog, Pebbles, and my rabbit, Buttercup.</p>
+      </div>
     </div>
-  </div>
 
-  <section class="class-selection">
-    <label for="class-select">Select Class:</label>
-    <select id="class-select"></select>
-  </section>
+    <section class="class-selection" aria-labelledby="class-select-label">
+      <label for="class-select" id="class-select-label">Select Class:</label>
+      <select id="class-select" aria-describedby="class-select-desc"></select>
+      <div id="class-select-desc" class="visually-hidden">Select a class to view its assignments</div>
+    </section>
 
-  <section class="grade-display">
-    <h2 id="gpa-display">📊 Grade: N/A</h2>
-  </section>
+    <section class="grade-display" aria-labelledby="grade-heading">
+      <h2 id="grade-heading">📊 Grade: <span id="gpa-display">N/A</span></h2>
+    </section>
 
-  <section class="assignment-form">
-    <form id="add-assignment-form">
-      <h2>Add New Assignment</h2>
-      <input type="text" id="assignment-title" name="assignment-title" placeholder="Assignment Title" required />
-      <input type="url" id="assignment-link" name="assignment-link" placeholder="Link (optional)" />
-      <input type="date" id="due-date" name="due-date" required />
-      <input type="time" id="due-time" name="due-time" placeholder="Time (optional, defaults to 11:59PM)" />
-      <select id="category" name="category" required></select>
-      <input type="number" id="points" name="points" placeholder="Points" required />
-      <button type="submit">➕ Add Assignment</button>
-    </form>
-  </section>
+    <section class="assignment-form" aria-labelledby="add-assignment-heading">
+      <form id="add-assignment-form">
+        <h2 id="add-assignment-heading">Add New Assignment</h2>
+        
+        <div class="form-group">
+          <label for="assignment-title">Assignment Title</label>
+          <input type="text" id="assignment-title" name="assignment-title" placeholder="Enter assignment title" required aria-required="true" />
+        </div>
+        
+        <div class="form-group">
+          <label for="assignment-link">Assignment Link (Optional)</label>
+          <input type="url" id="assignment-link" name="assignment-link" placeholder="https://example.com" aria-describedby="link-desc" />
+          <div id="link-desc" class="visually-hidden">Optional link to the assignment</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="due-date">Due Date</label>
+          <input type="date" id="due-date" name="due-date" required aria-required="true" />
+        </div>
+        
+        <div class="form-group">
+          <label for="due-time">Due Time (Optional)</label>
+          <input type="time" id="due-time" name="due-time" placeholder="Time" aria-describedby="time-desc" />
+          <div id="time-desc" class="visually-hidden">Optional time, defaults to 11:59 PM if not specified</div>
+        </div>
+        
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" name="category" required aria-required="true"></select>
+        </div>
+        
+        <div class="form-group">
+          <label for="points">Points</label>
+          <input type="number" id="points" name="points" placeholder="Enter points" required aria-required="true" min="0" step="0.1" />
+        </div>
+        
+        <button type="submit">➕ Add Assignment</button>
+      </form>
+    </section>
 
-  <section class="search-section">
-    <h2>🔍 Search Assignments</h2>
-    <div class="search-controls">
-      <input type="text" id="search-input" placeholder="Search by title, category, or due date...">
-      <button id="search-btn" class="search-button">Search</button>
-      <button id="clear-search-btn" class="search-button">Clear</button>
-    </div>
-  </section>
+    <section class="search-section" aria-labelledby="search-heading">
+      <h2 id="search-heading">🔍 Search Assignments</h2>
+      <div class="search-controls">
+        <label for="search-input" class="visually-hidden">Search assignments</label>
+        <input type="text" id="search-input" placeholder="Search by title, category, or due date..." aria-describedby="search-desc" />
+        <div id="search-desc" class="visually-hidden">Type to search through your assignments</div>
+        <button id="search-btn" class="search-button">Search</button>
+        <button id="clear-search-btn" class="search-button">Clear</button>
+      </div>
+    </section>
 
-  <section class="sort-section">
-    <h2>🔀 Sort Assignments</h2>
-    <div class="sort-controls">
-      <select id="sort-by">
-        <option value="due-asc">Due Date (Oldest First)</option>
-        <option value="due-desc">Due Date (Newest First)</option>
-        <option value="title-asc">Title (A-Z)</option>
-        <option value="title-desc">Title (Z-A)</option>
-        <option value="points-asc">Points (Low to High)</option>
-        <option value="points-desc">Points (High to Low)</option>
-        <option value="status">Completion Status (Ungraded First)</option>
-      </select>
-    </div>
-  </section>
+    <section class="sort-section" aria-labelledby="sort-heading">
+      <h2 id="sort-heading">🔀 Sort Assignments</h2>
+      <div class="sort-controls">
+        <label for="sort-by" class="visually-hidden">Sort assignments by</label>
+        <select id="sort-by" aria-describedby="sort-desc">
+          <option value="due-asc">Due Date (Oldest First)</option>
+          <option value="due-desc">Due Date (Newest First)</option>
+          <option value="title-asc">Title (A-Z)</option>
+          <option value="title-desc">Title (Z-A)</option>
+          <option value="points-asc">Points (Low to High)</option>
+          <option value="points-desc">Points (High to Low)</option>
+          <option value="status">Completion Status (Ungraded First)</option>
+        </select>
+        <div id="sort-desc" class="visually-hidden">Select how to sort your assignments</div>
+      </div>
+    </section>
 
-  <section class="assignments-list">
-    <h2>📋 Assignments</h2>
-    <div id="assignment-list"></div>
-  </section>
+    <section class="assignments-list" aria-labelledby="assignments-heading">
+      <h2 id="assignments-heading">📋 Assignments</h2>
+      <div id="assignment-list" role="list" aria-label="List of assignments"></div>
+    </section>
+  </main>
+  
   <script src="js/assignments.js"></script>
   <script src="js/grades.js"></script>
   <script>
@@ -158,25 +311,83 @@
     const modal = document.getElementById("aboutModal");
     const btn = document.getElementById("aboutBtn");
     const span = document.getElementsByClassName("close-button")[0];
+    const dyslexiaToggle = document.getElementById("dyslexia-toggle");
     
-    btn.onclick = function() {
+    // Load OpenDyslexic font if needed
+    if (!sessionStorage.getItem('dyslexiaFontLoaded')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/webfont.css';
+      document.head.appendChild(link);
+      sessionStorage.setItem('dyslexiaFontLoaded', 'true');
+    }
+    
+    // Toggle dyslexia-friendly mode
+    dyslexiaToggle.addEventListener('click', function() {
+      document.body.classList.toggle('dyslexia-mode');
+      this.setAttribute('aria-pressed', 
+        this.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    });
+    
+    // Modal functions
+    function openModal() {
       modal.style.display = "block";
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // Focus on close button when modal opens
+      setTimeout(() => span.focus(), 100);
     }
     
-    span.onclick = function() {
+    function closeModal() {
       modal.style.display = "none";
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = 'auto';
+      // Return focus to the button that opened the modal
+      btn.focus();
     }
     
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        modal.style.display = "none";
+    btn.onclick = openModal;
+    
+    span.onclick = closeModal;
+    
+    // Close modal with Escape key
+    modal.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
       }
-    }
+    });
+    
+    window.addEventListener('click', function(event) {
+      if (event.target == modal) {
+        closeModal();
+      }
+    });
+    
+    // Trap focus inside modal when open
+    modal.addEventListener('keydown', function(e) {
+      if (modal.style.display === 'block' && e.key === 'Tab') {
+        const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    });
   </script>
   
-  <dialog id="status-dialog" class="status-dialog">
+  <dialog id="status-dialog" class="status-dialog" aria-labelledby="dialog-title">
     <div class="dialog-content">
-      <h3>Assignment Status</h3>
+      <h3 id="dialog-title">Assignment Status</h3>
       <p id="dialog-message"></p>
       <div class="dialog-buttons">
         <button id="missing-btn" class="dialog-btn missing">⚠️ Mark as Missing</button>
