@@ -239,14 +239,13 @@
           let totalGpa = 0;
           let gpaCount = 0;
           
-          // Calculate GPA for each class and then average them
+          // Calculate GPA for each class based on letter grade
           classGrades.forEach(cls => {
-            const classGpaEntry = gradingScheme.find(grade => 
-              cls.grade >= grade.min && cls.grade <= grade.max
-            );
+            const letterGrade = getLetterGrade(cls.grade);
+            const gpaEntry = gradingScheme.find(grade => grade.letter === letterGrade);
             
-            if (classGpaEntry && classGpaEntry.gpa !== undefined) {
-              totalGpa += parseFloat(classGpaEntry.gpa);
+            if (gpaEntry && gpaEntry.gpa !== undefined) {
+              totalGpa += parseFloat(gpaEntry.gpa);
               gpaCount++;
             }
           });
