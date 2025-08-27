@@ -233,34 +233,25 @@
         const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
         const averageLetterGrade = getLetterGrade(averageGrade);
         
-        // Calculate GPA based on grading scheme
+        // Calculate GPA correctly - convert each class grade to GPA and then average
         let gpa = 0;
         if (gradingScheme.length > 0 && classCount > 0) {
-          // Find the GPA value for the average letter grade
-          const averageGradeEntry = gradingScheme.find(grade => 
-            averageGrade >= grade.min && averageGrade <= grade.max
-          );
+          let totalGpa = 0;
+          let gpaCount = 0;
           
-          if (averageGradeEntry && averageGradeEntry.gpa !== undefined) {
-            gpa = parseFloat(averageGradeEntry.gpa);
-          } else {
-            // If no matching grade found, calculate weighted average of class GPAs
-            let totalGpa = 0;
-            let gpaCount = 0;
+          // Calculate GPA for each class and then average them
+          classGrades.forEach(cls => {
+            const classGpaEntry = gradingScheme.find(grade => 
+              cls.grade >= grade.min && cls.grade <= grade.max
+            );
             
-            classGrades.forEach(cls => {
-              const classGpaEntry = gradingScheme.find(grade => 
-                cls.grade >= grade.min && cls.grade <= grade.max
-              );
-              
-              if (classGpaEntry && classGpaEntry.gpa !== undefined) {
-                totalGpa += parseFloat(classGpaEntry.gpa);
-                gpaCount++;
-              }
-            });
-            
-            gpa = gpaCount > 0 ? totalGpa / gpaCount : 0;
-          }
+            if (classGpaEntry && classGpaEntry.gpa !== undefined) {
+              totalGpa += parseFloat(classGpaEntry.gpa);
+              gpaCount++;
+            }
+          });
+          
+          gpa = gpaCount > 0 ? totalGpa / gpaCount : 0;
         }
         
         // Update stats display
