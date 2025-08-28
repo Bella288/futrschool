@@ -162,7 +162,7 @@
 
   <header>
     <h1>📊 Overview</h1>
-    <p>Your academic performance at a glance</p>
+    <p>Your academic performance at a glance!</p>
   </header>
   
   <main>
@@ -254,17 +254,17 @@
         // Update stats display
         statsContainer.innerHTML = `
           <div class="stat-card">
-            <h3>Missing Assignments</h3>
+            <h3>⚠️ Missing Assignments</h3>
             <div class="stat-value">${missingAssignments}</div>
             <p class="stat-description">Past due assignments marked as missing</p>
           </div>
           <div class="stat-card">
-            <h3>Average Grade</h3>
+            <h3>📈 Average Grade</h3>
             <div class="stat-value">${averageGrade.toFixed(1)}%</div>
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
-            <h3>GPA</h3>
+            <h3>📊 GPA</h3>
             <div class="stat-value">${gpa.toFixed(3)}</div>
             <p class="stat-description">Based on your grading scheme</p>
           </div>
@@ -279,7 +279,7 @@
             </div>
           `).join('');
         } else {
-          classGradesContainer.innerHTML = '<div class="no-data">No graded assignments found</div>';
+          classGradesContainer.innerHTML = '<div class="no-data">❌ No graded assignments found</div>';
         }
       }
       
@@ -321,7 +321,7 @@
         const gradingScheme = JSON.parse(localStorage.getItem("gradingScheme")) || [];
         
         if (gradingScheme.length === 0) {
-          return "N/A";
+          return "❌ N/A";
         }
         
         // Sort by min value to ensure proper order
@@ -333,7 +333,7 @@
           }
         }
         
-        return "N/A";
+        return "❌ N/A";
       }
       
       // Initial update
