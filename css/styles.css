@@ -55,7 +55,7 @@ input, select, button {
   background: #ffeb3b;
 }
 .period.upcoming {
-  border: 3px dashed #ffeb3b;
+  border: 5px dashed #ffeb3b;
 }
 /* Flash animations - only apply when flash is enabled */
 body.flash-enabled .period.active {
