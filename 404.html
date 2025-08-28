@@ -3,13 +3,107 @@
   <head>
     <meta charset="UTF-8">
     <title>404 Not Found | Gradeline</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      
+      .navbar {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .navbar a {
+        text-decoration: none;
+        color: #333;
+        font-weight: 500;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+      }
+      
+      .navbar a:hover {
+        background-color: #e9ecef;
+      }
+      
+      .error-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+        background-image: url('https://raw.githubusercontent.com/Bella288/futrschool/refs/heads/main/assets/images/Cat_Sleeping_on_Keyboard.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        color: #333;
+        position: relative;
+      }
+      
+      .error-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.85);
+        z-index: 0;
+      }
+      
+      .error-content h1, 
+      .error-content h2, 
+      .error-content h3 {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto 1.5rem;
+      }
+      
+      .error-content h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #2c3e50;
+      }
+      
+      .error-content h2 {
+        font-size: 1.5rem;
+        font-weight: normal;
+        line-height: 1.5;
+      }
+      
+      .error-content h3 {
+        font-size: 1.1rem;
+        font-weight: normal;
+        margin-top: 2rem;
+      }
+      
+      .error-content a {
+        color: #3498db;
+        text-decoration: none;
+      }
+      
+      .error-content a:hover {
+        text-decoration: underline;
+      }
+    </style>
   </head>
-  <header>
-    <h1><strong>404 Not Found</strong></h1>
-    <h2>Uh-oh! Looks like this page either does not exist or the link is broken. You can use the navbar to return to the website.</h2>
-    <h3>If this happens again, please do not hesitate to contact <a href="mailto:barbar288.2021@gmail.com">Bella Lawrence</a></h3>
-  </header>
   <body>
     <nav class="navbar">
       <a href="index.html">🏫 Class Setup</a>
@@ -20,12 +114,11 @@
       <a href="settings.html">⚙️ Settings</a>
       <a href="policies.html">📑 Policies</a>
     </nav>
+    
+    <div class="error-content">
+      <h1><strong>404 Not Found</strong></h1>
+      <h2>Uh-oh! Looks like this page either does not exist or the link is broken. You can use the navbar to return to the website.</h2>
+      <h3>If this happens again, please do not hesitate to contact <a href="mailto:barbar288.2021@gmail.com">Bella Lawrence</a></h3>
+    </div>
   </body>
-  <style>
-    header {
-      background-image: url('https://raw.githubusercontent.com/Bella288/futrschool/refs/heads/main/assets/images/Cat_Sleeping_on_Keyboard.jpg');
-      background-repeat: no-repeat;
-      background-size: 100% 100%;
-    }
-  </style>
 </html>
