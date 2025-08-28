@@ -36,8 +36,10 @@ input, select, button {
   border-radius: 4px;
   transition: background-color 0.3s;
 }
+/* Changed active tab style to bold instead of yellow */
 .navbar a.active {
-  color: #ffeb3b;
+  font-weight: bold;
+  color: #333;
 }
 .navbar a:hover {
   background-color: #e9ecef;
@@ -293,4 +295,66 @@ input, select, button {
 
 .dialog-btn.cancel:hover {
   background-color: #ccc;
+}
+.error-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  background-image: url('https://raw.githubusercontent.com/Bella288/futrschool/refs/heads/main/assets/images/Cat_Sleeping_on_Keyboard.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #333;
+  position: relative;
+}
+
+.error-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.85);
+  z-index: 0;
+}
+
+.error-content h1, 
+.error-content h2, 
+.error-content h3 {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto 1.5rem;
+}
+
+.error-content h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.error-content h2 {
+  font-size: 1.5rem;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.error-content h3 {
+  font-size: 1.1rem;
+  font-weight: normal;
+  margin-top: 2rem;
+}
+
+.error-content a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.error-content a:hover {
+  text-decoration: underline;
 }
