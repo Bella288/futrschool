@@ -19,26 +19,28 @@ input, select, button {
   font-size: 1em;
 }
 .navbar {
-  background-color: #333;
-  padding: 10px;
+  background-color: #f8f9fa;
+  padding: 1rem;
   display: flex;
-  gap: 20px;
   justify-content: center;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
 .navbar a {
-  color: white;
   text-decoration: none;
-  font-weight: bold;
+  color: #333;
+  font-weight: 500;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 .navbar a.active {
   color: #ffeb3b;
 }
 .navbar a:hover {
-  text-decoration: underline;
+  background-color: #e9ecef;
 }
 .period {
   padding: 10px;
