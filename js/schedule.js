@@ -59,7 +59,7 @@ function checkSchedule() {
   
   // Reset all periods first
   document.querySelectorAll('.period').forEach(period => {
-    period.classList.remove('active', 'upcoming');
+    period.classList.remove('active', 'upcoming', 'soon');
     period.innerHTML = period.dataset.name;
   });
   
@@ -91,6 +91,12 @@ function checkSchedule() {
       hasActivePeriod = true;
       periodElement.classList.add('active');
       const remaining = end - currentTime;
+      
+      // Add "soon" class if less than 5 minutes remaining
+      if (remaining <= 5) {
+        periodElement.classList.add('soon');
+      }
+      
       periodElement.innerHTML = `${periodData.name} - ⌛ ${formatTimeRemaining(remaining)} left`;
     } 
     // Upcoming period (within the next 30 minutes)
@@ -98,6 +104,12 @@ function checkSchedule() {
       hasUpcomingPeriod = true;
       periodElement.classList.add('upcoming');
       const untilStart = start - currentTime;
+      
+      // Add "soon" class if less than 5 minutes until start
+      if (untilStart <= 5) {
+        periodElement.classList.add('soon');
+      }
+      
       periodElement.innerHTML = `${periodData.name} - Starts in ${untilStart} min`;
     }
   });
@@ -117,6 +129,12 @@ function checkSchedule() {
         if (nextPeriodElement) {
           const untilStart = parseTime(nextPeriod.start) - currentTime;
           nextPeriodElement.classList.add('upcoming');
+          
+          // Add "soon" class if less than 5 minutes until start
+          if (untilStart <= 5) {
+            nextPeriodElement.classList.add('soon');
+          }
+          
           nextPeriodElement.innerHTML = `${nextPeriod.name} - Starts in ${untilStart} min`;
         }
       }
@@ -210,4 +228,4 @@ renderSchedule();
 
 // Set up intervals for updating time and checking schedule
 setInterval(updateDateTime, 60000); // Update time every minute
-setInterval(checkSchedule, 60000); // Check schedule every minute
+setInterval(checkSchedule, 30000); // Check schedule every 30 seconds for better responsiveness
