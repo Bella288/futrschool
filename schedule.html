@@ -99,6 +99,30 @@
       font-weight: 500;
       color: #856404;
     }
+
+    /* Flash toggle responsive adjustments */
+    @media (max-width: 768px) {
+      .flash-toggle-container {
+        position: static;
+        justify-content: center;
+        margin: 10px 0;
+      }
+      
+      header {
+        padding-top: 40px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .flash-toggle-btn {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+      }
+      
+      .flash-status {
+        font-size: 0.7rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -135,6 +159,12 @@
   </div>
   
   <header>
+    <div class="flash-toggle-container">
+      <button id="flashToggleBtn" class="flash-toggle-btn" title="Toggle flashing animations">
+        ⚡ Flash
+      </button>
+      <span id="flashStatus" class="flash-status">On</span>
+    </div>
     <h1>⏰ Bell Schedule</h1>
     <div class="clock-container">
       <div id="currentDateTime">Loading time...</div>
@@ -186,6 +216,53 @@
         modal.style.display = "none";
       }
     }
+
+    // Flash toggle functionality
+    function initializeFlashToggle() {
+      const flashToggleBtn = document.getElementById('flashToggleBtn');
+      const flashStatus = document.getElementById('flashStatus');
+      
+      // Check localStorage for flash preference
+      const flashSetting = localStorage.getItem('flash') || 'on';
+      
+      // Set initial state
+      if (flashSetting === 'off') {
+        document.body.classList.remove('flash-enabled');
+        flashToggleBtn.classList.add('flash-off');
+        flashToggleBtn.innerHTML = '⚡ Flash';
+        flashStatus.textContent = 'Off';
+      } else {
+        document.body.classList.add('flash-enabled');
+        flashToggleBtn.classList.remove('flash-off');
+        flashToggleBtn.innerHTML = '⚡ Flash';
+        flashStatus.textContent = 'On';
+      }
+      
+      // Add click event listener
+      flashToggleBtn.addEventListener('click', function() {
+        const currentFlash = localStorage.getItem('flash') || 'on';
+        
+        if (currentFlash === 'on') {
+          localStorage.setItem('flash', 'off');
+          document.body.classList.remove('flash-enabled');
+          flashToggleBtn.classList.add('flash-off');
+          flashStatus.textContent = 'Off';
+        } else {
+          localStorage.setItem('flash', 'on');
+          document.body.classList.add('flash-enabled');
+          flashToggleBtn.classList.remove('flash-off');
+          flashStatus.textContent = 'On';
+        }
+        
+        // Reload to apply changes
+        setTimeout(() => {
+          window.location.reload();
+        }, 300);
+      });
+    }
+    
+    // Initialize flash toggle when page loads
+    document.addEventListener('DOMContentLoaded', initializeFlashToggle);
   </script>
 </body>
 </html>
