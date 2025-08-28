@@ -47,15 +47,34 @@ input, select, button {
   padding: 10px;
   margin: 5px 20px;
   background: #ddd;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease;
 }
 .period.active {
   background: #ffeb3b;
   animation: pulse 1s infinite;
 }
+.period.upcoming {
+  border: 3px dashed #ffeb3b;
+  animation: border-pulse 1s infinite;
+}
+.period.upcoming.soon {
+  animation: border-pulse-fast 0.5s infinite;
+}
 @keyframes pulse {
   0% { opacity: 1; }
   50% { opacity: 0.6; }
   100% { opacity: 1; }
+}
+@keyframes border-pulse {
+  0% { border-color: #ffeb3b; }
+  50% { border-color: rgba(255, 235, 59, 0.3); }
+  100% { border-color: #ffeb3b; }
+}
+@keyframes border-pulse-fast {
+  0% { border-color: #ffeb3b; }
+  50% { border-color: rgba(255, 235, 59, 0.3); }
+  100% { border-color: #ffeb3b; }
 }
 .assignment.missing {
   background: #ffcccc;
