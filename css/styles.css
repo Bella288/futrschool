@@ -55,7 +55,7 @@ input, select, button {
   animation: pulse 1s infinite;
 }
 .period.upcoming {
-  border: 3px dashed #ffeb3b;
+  border: 5px dashed #ffeb3b;
   animation: border-pulse 1s infinite;
 }
 .period.upcoming.soon {
