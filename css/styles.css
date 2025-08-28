@@ -6,6 +6,7 @@ body {
 header {
   text-align: center;
   margin: 20px 0;
+  position: relative;
 }
 form {
   display: flex;
@@ -52,13 +53,19 @@ input, select, button {
 }
 .period.active {
   background: #ffeb3b;
-  animation: pulse 1s infinite;
 }
 .period.upcoming {
-  border: 5px dashed #ffeb3b;
+  border: 3px dashed #ffeb3b;
+}
+/* Flash animations - only apply when flash is enabled */
+body.flash-enabled .period.active {
+  animation: pulse 1s infinite;
+}
+body.flash-enabled .period.upcoming {
   animation: border-pulse 1s infinite;
 }
-.period.upcoming.soon {
+body.flash-enabled .period.upcoming.soon,
+body.flash-enabled .period.active.soon {
   animation: border-pulse-fast 0.5s infinite;
 }
 @keyframes pulse {
@@ -375,4 +382,48 @@ input, select, button {
 
 .error-content a:hover {
   text-decoration: underline;
+}
+
+/* Flash Toggle Button Styles */
+.flash-toggle-container {
+  position: absolute;
+  top: 10px;
+  right: 60px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.flash-toggle-btn {
+  background: #f0f0f0;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.flash-toggle-btn:hover {
+  background: #e0e0e0;
+}
+
+.flash-toggle-btn.flash-off {
+  background: #666;
+  color: white;
+  border-color: #444;
+}
+
+.flash-toggle-btn.flash-off:hover {
+  background: #555;
+}
+
+.flash-status {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
 }
