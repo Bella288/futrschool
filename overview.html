@@ -230,7 +230,8 @@
           }
         });
         
-        const averageGrade = (classCount > 0 ? totalGrade / classCount : 0).round(0);
+        const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
+        const averageRound = averageGrade.round(0)
         const averageLetterGrade = getLetterGrade(averageGrade);
         
         // Calculate GPA correctly - find where the average grade falls in the grading scheme
@@ -244,7 +245,7 @@
             const currentGrade = sortedScheme[i];
             
             // If average grade falls within this range, use this GPA
-            if (averageGrade >= currentGrade.min && averageGrade <= currentGrade.max) {
+            if (averageRound >= currentGrade.min && averageRound <= currentGrade.max) {
               gpa = parseFloat(currentGrade.gpa);
               break;
             }
@@ -260,7 +261,7 @@
           </div>
           <div class="stat-card">
             <h3>📈 Average Grade</h3>
-            <div class="stat-value">${averageGrade}%</div>
+            <div class="stat-value">${averageRound}%</div>
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
