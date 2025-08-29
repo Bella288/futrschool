@@ -229,8 +229,7 @@ function handleFormSubmit(e) {
     completed: false,
     grade: null,
     statusNote: null, // Always set to null for new assignments
-    comment: null,     // New field for comments
-    commentDate: null  // New field for comment date
+    comments: []      // New field for multiple comments
   };
 
   if (!assignment.title || !form['due-date'].value || isNaN(assignment.points)) {
@@ -336,7 +335,10 @@ function renderAssignmentList(assignments) {
 
   assignments.forEach((a, i) => {
     const statusIcon = a.statusNote === "m" ? "⚠️ Missing" : (a.statusNote === "nm" ? "⏳ Not Graded" : "");
-    const commentButton = a.comment ? `<button class="comment-btn" data-index="${i}">💬 View Comment</button>` : '';
+    const commentCount = a.comments ? a.comments.length : 0;
+    const commentButton = commentCount > 0 ? 
+      `<button class="comment-btn" data-index="${i}">💬 Comments <span class="comment-count-badge">${commentCount}</span></button>` : 
+      `<button class="comment-btn" data-index="${i}">💬 Add Comment</button>`;
     
     const item = document.createElement("div");
     item.className = `assignment-item ${a.completed ? 'completed' : ''}`;
@@ -354,7 +356,7 @@ function renderAssignmentList(assignments) {
         ${a.link ? `<a href="${a.link}" target="_blank" class="assignment-link">🔗 Link</a>` : ''}
         ${a.completed 
           ? `<span class="assignment-grade">✅ Grade: ${a.grade}% ${commentButton}</span>`
-          : ''}
+          : `<span class="assignment-grade">${commentButton}</span>`}
         <div class="action-buttons">
           ${a.completed 
             ? `<button data-index="${i}" class="edit-grade-btn">✏️ Edit Grade</button>` 
@@ -421,19 +423,11 @@ function setupAssignmentEventListeners() {
         return;
       }
       
-      // Get grade and comment
+      // Get grade
       const grade = prompt("Enter grade received (out of 100):");
       if (grade !== null && !isNaN(grade)) {
-        const comment = prompt("Add a comment about this assignment (optional):");
-        
         assignments[actualIndex].completed = true;
         assignments[actualIndex].grade = parseFloat(grade);
-        
-        // Add comment if provided
-        if (comment && comment.trim() !== "") {
-          assignments[actualIndex].comment = comment.trim();
-          assignments[actualIndex].commentDate = new Date().toLocaleString();
-        }
         
         // Remove any status note when assignment is completed and graded
         assignments[actualIndex].statusNote = null;
@@ -441,6 +435,21 @@ function setupAssignmentEventListeners() {
         localStorage.setItem("assignments", JSON.stringify(allAssignments));
         updateClassGrade(className);
         loadAssignments(className);
+        
+        // Prompt to add a comment after grading
+        setTimeout(() => {
+          if (confirm("Would you like to add a comment about this assignment?")) {
+            // Use the global function to show the comment dialog
+            if (typeof window.showAssignmentComments === 'function') {
+              window.showAssignmentComments(
+                className, 
+                actualIndex, 
+                assignments[actualIndex].title, 
+                assignments[actualIndex].comments
+              );
+            }
+          }
+        }, 300);
       }
     });
   });
@@ -464,19 +473,10 @@ function setupAssignmentEventListeners() {
       }
       
       const currentGrade = assignments[actualIndex].grade;
-      const currentComment = assignments[actualIndex].comment || "";
       
       const newGrade = prompt(`Edit grade (current: ${currentGrade}):`, currentGrade);
       if (newGrade !== null && !isNaN(newGrade)) {
-        const newComment = prompt(`Edit comment (current: ${currentComment}):`, currentComment);
-        
         assignments[actualIndex].grade = parseFloat(newGrade);
-        
-        // Update comment if provided
-        if (newComment !== null) {
-          assignments[actualIndex].comment = newComment.trim();
-          assignments[actualIndex].commentDate = new Date().toLocaleString();
-        }
         
         // Remove any status note when assignment is graded
         assignments[actualIndex].statusNote = null;
@@ -488,18 +488,39 @@ function setupAssignmentEventListeners() {
     });
   });
 
-  // View comment
+  // View/Add comments
   list.querySelectorAll(".comment-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const displayIndex = parseInt(btn.dataset.index);
-      const assignment = displayedAssignments[displayIndex];
+      const assignmentToComment = displayedAssignments[displayIndex];
+      
+      // Find the actual index in the original array
+      const actualIndex = assignments.findIndex(a => 
+        a.title === assignmentToComment.title && 
+        a.due === assignmentToComment.due && 
+        a.category === assignmentToComment.category
+      );
+      
+      if (actualIndex === -1) {
+        alert("Error: Could not find assignment");
+        return;
+      }
       
       // Use the global function to show the comment dialog
-      if (typeof window.showAssignmentComment === 'function') {
-        window.showAssignmentComment(assignment.title, assignment.comment, assignment.commentDate);
+      if (typeof window.showAssignmentComments === 'function') {
+        window.showAssignmentComments(
+          className, 
+          actualIndex, 
+          assignments[actualIndex].title, 
+          assignments[actualIndex].comments
+        );
       } else {
         // Fallback to alert if the dialog function isn't available
-        alert(`Comment for "${assignment.title}":\n\n${assignment.comment || "No comment provided."}\n\nAdded on: ${assignment.commentDate || "Unknown date"}`);
+        alert(`Comments for "${assignments[actualIndex].title}":\n\n${
+          assignments[actualIndex].comments && assignments[actualIndex].comments.length > 0 
+            ? assignments[actualIndex].comments.map(c => `${c.text}\n- ${c.date}`).join('\n\n')
+            : "No comments yet."
+        }`);
       }
     });
   });
@@ -656,6 +677,35 @@ function updateGradeDisplay(className) {
     display.textContent = `📊 Grade for ${className}: ${roundedGrade}% (Exact: ${exactGrade}%) - ${letterGrade}`;
   }
 }
+
+// Global function to add a comment to an assignment
+window.addAssignmentComment = function(className, assignmentIndex, commentText) {
+  const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+  
+  if (!allAssignments[className] || !allAssignments[className][assignmentIndex]) {
+    console.error("Assignment not found");
+    return false;
+  }
+  
+  // Initialize comments array if it doesn't exist
+  if (!allAssignments[className][assignmentIndex].comments) {
+    allAssignments[className][assignmentIndex].comments = [];
+  }
+  
+  // Add the new comment with timestamp
+  allAssignments[className][assignmentIndex].comments.push({
+    text: commentText,
+    date: new Date().toLocaleString()
+  });
+  
+  // Save back to localStorage
+  localStorage.setItem("assignments", JSON.stringify(allAssignments));
+  
+  // Refresh the assignments list to show updated comment count
+  loadAssignments(className);
+  
+  return true;
+};
 
 // Initialize grade display when class selection changes
 document.addEventListener("DOMContentLoaded", () => {
