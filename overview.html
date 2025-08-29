@@ -232,20 +232,20 @@
         
         const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
         const averageRound = Math.round(averageGrade)
-        const averageLetterGrade = getLetterGrade(averageGrade);
+        const averageLetterGrade = getLetterGrade(averageRound);
         
         // Calculate GPA correctly - find where the average grade falls in the grading scheme
         let gpa = 0;
         if (gradingScheme.length > 0 && classCount > 0) {
-          // Sort grading scheme by min value to ensure proper order
-          const sortedScheme = [...gradingScheme].sort((a, b) => a.min - b.min);
+          // Sort grading scheme by min value in descending order for proper matching
+          const sortedScheme = [...gradingScheme].sort((a, b) => b.min - a.min);
           
           // Find the appropriate GPA based on the average grade
           for (let i = 0; i < sortedScheme.length; i++) {
             const currentGrade = sortedScheme[i];
             
             // If average grade falls within this range, use this GPA
-            if (averageGrade >= currentGrade.min && averageGrade <= currentGrade.max) {
+            if (averageGrade >= currentGrade.min) {
               gpa = parseFloat(currentGrade.gpa);
               break;
             }
@@ -325,11 +325,11 @@
           return "❌ N/A";
         }
         
-        // Sort by min value to ensure proper order
-        const sortedScheme = [...gradingScheme].sort((a, b) => a.min - b.min);
+        // Sort by min value in descending order for proper matching
+        const sortedScheme = [...gradingScheme].sort((a, b) => b.min - a.min);
         
         for (const grade of sortedScheme) {
-          if (percentage >= grade.min && percentage <= grade.max) {
+          if (percentage >= grade.min) {
             return grade.letter;
           }
         }
