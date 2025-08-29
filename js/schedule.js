@@ -9,13 +9,17 @@ function getCurrentWeekday() {
   return days[new Date().getDay()];
 }
 
-function formatTimeRemaining(minutes) {
-  if (minutes < 60) {
-    return `${minutes} min`;
+function formatTimeRemaining(totalSeconds) {
+  if (totalSeconds < 60) {
+    return `${totalSeconds} sec`;
+  } else if (totalSeconds < 3600) {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
   } else {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
   }
 }
 
@@ -52,10 +56,66 @@ function updateDateTime() {
   }
 }
 
+// Track active countdown intervals
+let countdownIntervals = {};
+
+function clearAllCountdowns() {
+  // Clear all existing countdown intervals
+  for (const key in countdownIntervals) {
+    clearInterval(countdownIntervals[key]);
+    delete countdownIntervals[key];
+  }
+}
+
+function startCountdown(periodElement, endTime, isActivePeriod = true) {
+  const periodKey = periodElement.dataset.name;
+  
+  // Clear any existing countdown for this period
+  if (countdownIntervals[periodKey]) {
+    clearInterval(countdownIntervals[periodKey]);
+  }
+  
+  // Start new countdown
+  countdownIntervals[periodKey] = setInterval(() => {
+    const now = new Date();
+    const remainingSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
+    
+    if (remainingSeconds <= 0) {
+      clearInterval(countdownIntervals[periodKey]);
+      delete countdownIntervals[periodKey];
+      checkSchedule(); // Re-check schedule when countdown completes
+      return;
+    }
+    
+    if (isActivePeriod) {
+      periodElement.innerHTML = `${periodElement.dataset.name} - ⌛ ${formatTimeRemaining(remainingSeconds)} left`;
+      
+      // Update class for styling when less than 1 minute
+      if (remainingSeconds < 60) {
+        periodElement.classList.add('soon');
+      } else {
+        periodElement.classList.remove('soon');
+      }
+    } else {
+      periodElement.innerHTML = `${periodElement.dataset.name} - Starts in ${formatTimeRemaining(remainingSeconds)}`;
+      
+      // Update class for styling when less than 1 minute
+      if (remainingSeconds < 60) {
+        periodElement.classList.add('soon');
+      } else {
+        periodElement.classList.remove('soon');
+      }
+    }
+  }, 1000);
+}
+
 function checkSchedule() {
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
   const currentWeekday = getCurrentWeekday();
+  
+  // Clear all countdowns before resetting
+  clearAllCountdowns();
   
   // Reset all periods first
   document.querySelectorAll('.period').forEach(period => {
@@ -90,27 +150,25 @@ function checkSchedule() {
     if (currentTime >= start && currentTime <= end) {
       hasActivePeriod = true;
       periodElement.classList.add('active');
-      const remaining = end - currentTime;
       
-      // Add "soon" class if less than 5 minutes remaining
-      if (remaining <= 5) {
-        periodElement.classList.add('soon');
-      }
+      // Calculate end time for countdown
+      const endTime = new Date();
+      endTime.setHours(Math.floor(end / 60), end % 60, 0, 0);
       
-      periodElement.innerHTML = `${periodData.name} - ⌛ ${formatTimeRemaining(remaining)} left`;
+      // Start countdown for active period
+      startCountdown(periodElement, endTime, true);
     } 
     // Upcoming period (within the next 30 minutes)
     else if (currentTime < start && (start - currentTime) <= 30) {
       hasUpcomingPeriod = true;
       periodElement.classList.add('upcoming');
-      const untilStart = start - currentTime;
       
-      // Add "soon" class if less than 5 minutes until start
-      if (untilStart <= 5) {
-        periodElement.classList.add('soon');
-      }
+      // Calculate start time for countdown
+      const startTime = new Date();
+      startTime.setHours(Math.floor(start / 60), start % 60, 0, 0);
       
-      periodElement.innerHTML = `${periodData.name} - Starts in ${untilStart} min`;
+      // Start countdown for upcoming period
+      startCountdown(periodElement, startTime, false);
     }
   });
   
@@ -130,12 +188,12 @@ function checkSchedule() {
           const untilStart = parseTime(nextPeriod.start) - currentTime;
           nextPeriodElement.classList.add('upcoming');
           
-          // Add "soon" class if less than 5 minutes until start
-          if (untilStart <= 5) {
-            nextPeriodElement.classList.add('soon');
-          }
+          // Calculate start time for countdown
+          const startTime = new Date();
+          startTime.setHours(Math.floor(parseTime(nextPeriod.start) / 60), parseTime(nextPeriod.start) % 60, 0, 0);
           
-          nextPeriodElement.innerHTML = `${nextPeriod.name} - Starts in ${untilStart} min`;
+          // Start countdown for next period
+          startCountdown(nextPeriodElement, startTime, false);
         }
       }
     }
@@ -229,3 +287,8 @@ renderSchedule();
 // Set up intervals for updating time and checking schedule
 setInterval(updateDateTime, 60000); // Update time every minute
 setInterval(checkSchedule, 30000); // Check schedule every 30 seconds for better responsiveness
+
+// Clear all intervals when page is unloaded to prevent memory leaks
+window.addEventListener('beforeunload', () => {
+  clearAllCountdowns();
+});
