@@ -231,7 +231,7 @@
         });
         
         const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
-        const averageRound = averageGrade.round(0)
+        const averageRound = Math.round(averageGrade)
         const averageLetterGrade = getLetterGrade(averageGrade);
         
         // Calculate GPA correctly - find where the average grade falls in the grading scheme
