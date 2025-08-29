@@ -1,1 +1,38 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Parse the URL parameters to get the class name
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+        
+        // Redirect to the dashboard with the class parameter
+        function redirectToDashboard() {
+            const className = getQueryParam('name');
+            if (className) {
+                // Encode the class name for URL safety
+                const encodedClassName = encodeURIComponent(className);
+                window.location.href = `redirect_notice.html?from=${encodeURIComponent(window.location.href)}&to=https://gradeline.netlify.app/dashboard?class=${encodedClassName}`;
+            } else {
+                // If no class name provided, redirect to home or show error
+                document.body.innerHTML = '<h1>Error: No class name specified</h1>';
+            }
+        }
+        
+        // Execute redirect on page load
+        window.onload = redirectToDashboard;
+    </script>
+</head>
+<body>
+    <div class="error-content">
+        <h1>Redirecting...</h1>
+        <h2>Please wait while we take you to your class dashboard.</h2>
+    </div>
+</body>
+</html>
