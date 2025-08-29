@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirect Notice</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Parse the URL parameters to get redirect information
+        function getQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                from: urlParams.get('from'),
+                to: urlParams.get('to')
+            };
+        }
+        
+        // Perform the actual redirect after a brief delay
+        function performRedirect() {
+            const params = getQueryParams();
+            if (params.to) {
+                // Show the redirect information
+                document.getElementById('from-link').textContent = decodeURIComponent(params.from);
+                document.getElementById('to-link').textContent = decodeURIComponent(params.to);
+                document.getElementById('to-link').href = decodeURIComponent(params.to);
+                
+                // Redirect after 3 seconds
+                setTimeout(() => {
+                    window.location.href = decodeURIComponent(params.to);
+                }, 3000);
+            } else {
+                document.body.innerHTML = '<h1>Error: No redirect destination specified</h1>';
+            }
+        }
+        
+        // Execute on page load
+        window.onload = performRedirect;
+    </script>
+    <style>
+        .redirect-content {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .url-display {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+        .countdown {
+            font-size: 1.2em;
+            margin: 20px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-content">
+        <h1>Redirecting...</h1>
+        <p>You are being redirected from:</p>
+        <div class="url-display" id="from-link">Loading...</div>
+        <p>To:</p>
+        <div class="url-display">
+            <a id="to-link" href="#">Loading...</a>
+        </div>
+        <div class="countdown" id="countdown">Redirecting in 3 seconds...</div>
+        <p>If you are not redirected automatically, <a id="manual-link" href="#">click here</a>.</p>
+    </div>
 
+    <script>
+        // Update countdown timer
+        let seconds = 3;
+        const countdownElement = document.getElementById('countdown');
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            if (seconds > 0) {
+                countdownElement.textContent = `Redirecting in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
+            } else {
+                clearInterval(countdownInterval);
+            }
+        }, 1000);
+        
+        // Set up manual redirect link
+        document.getElementById('manual-link').href = document.getElementById('to-link').href;
+    </script>
+</body>
+</html>
