@@ -225,7 +225,7 @@
             classGrades.push({
               name: cls.name,
               grade: classGrade,
-              letter: getLetterGrade(classGrade)
+              letter: getLetterGrade(classGrade.round(0))
             });
           }
         });
@@ -260,7 +260,7 @@
           </div>
           <div class="stat-card">
             <h3>📈 Average Grade</h3>
-            <div class="stat-value">${averageGrade.toFixed(1)}%</div>
+            <div class="stat-value">${averageGrade.round(0)}%</div>
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
