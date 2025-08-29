@@ -231,26 +231,11 @@
         });
         
         const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
-        const averageRound = Math.round(averageGrade)
+        const averageRound = Math.round(averageGrade * 100) / 100; // Round to 2 decimal places for accuracy
         const averageLetterGrade = getLetterGrade(averageRound);
         
-        // Calculate GPA correctly - find where the average grade falls in the grading scheme
-        let gpa = 0;
-        if (gradingScheme.length > 0 && classCount > 0) {
-          // Sort grading scheme by min value in descending order for proper matching
-          const sortedScheme = [...gradingScheme].sort((a, b) => b.min - a.min);
-          
-          // Find the appropriate GPA based on the average grade
-          for (let i = 0; i < sortedScheme.length; i++) {
-            const currentGrade = sortedScheme[i];
-            
-            // If average grade falls within this range, use this GPA
-            if (averageGrade >= currentGrade.min) {
-              gpa = parseFloat(currentGrade.gpa);
-              break;
-            }
-          }
-        }
+        // Calculate GPA using interpolation
+        let gpa = calculateGPA(averageRound, gradingScheme);
         
         // Update stats display
         statsContainer.innerHTML = `
@@ -261,7 +246,7 @@
           </div>
           <div class="stat-card">
             <h3>📈 Average Grade</h3>
-            <div class="stat-value">${averageRound}%</div>
+            <div class="stat-value">${averageRound.toFixed(2)}%</div>
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
@@ -282,6 +267,39 @@
         } else {
           classGradesContainer.innerHTML = '<div class="no-data">❌ No graded assignments found</div>';
         }
+      }
+      
+      // Calculate GPA using interpolation between grade ranges
+      function calculateGPA(averageGrade, gradingScheme) {
+        if (!gradingScheme || gradingScheme.length === 0) return 0;
+        
+        // Sort the grading scheme by min value in ascending order
+        const sortedScheme = [...gradingScheme].sort((a, b) => a.min - b.min);
+        
+        // Find the appropriate grade range
+        for (let i = 0; i < sortedScheme.length; i++) {
+          const currentRange = sortedScheme[i];
+          const nextRange = sortedScheme[i + 1];
+          
+          // If this is the last range or average is below the first range
+          if (i === sortedScheme.length - 1 || averageGrade < sortedScheme[0].min) {
+            return parseFloat(currentRange.gpa);
+          }
+          
+          // If average falls within this range
+          if (averageGrade >= currentRange.min && averageGrade < nextRange.min) {
+            // Calculate how far through the range the average is
+            const rangeSize = nextRange.min - currentRange.min;
+            const positionInRange = averageGrade - currentRange.min;
+            const percentageThroughRange = positionInRange / rangeSize;
+            
+            // Calculate GPA using linear interpolation
+            const gpaDifference = parseFloat(nextRange.gpa) - parseFloat(currentRange.gpa);
+            return parseFloat(currentRange.gpa) + (gpaDifference * percentageThroughRange);
+          }
+        }
+        
+        return 0; // Fallback
       }
       
       // Calculate grade for a specific class (reuse from grades.js)
