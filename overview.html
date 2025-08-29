@@ -225,12 +225,12 @@
             classGrades.push({
               name: cls.name,
               grade: classGrade,
-              letter: getLetterGrade(classGrade.round(0))
+              letter: getLetterGrade(classGrade)
             });
           }
         });
         
-        const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
+        const averageGrade = (classCount > 0 ? totalGrade / classCount : 0).round(0);
         const averageLetterGrade = getLetterGrade(averageGrade);
         
         // Calculate GPA correctly - find where the average grade falls in the grading scheme
@@ -260,7 +260,7 @@
           </div>
           <div class="stat-card">
             <h3>📈 Average Grade</h3>
-            <div class="stat-value">${averageGrade.round(0)}%</div>
+            <div class="stat-value">${averageGrade}%</div>
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
