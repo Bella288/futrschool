@@ -276,7 +276,7 @@
           classGradesContainer.innerHTML = classGrades.map(cls => `
             <div class="class-grade-item">
               <span class="class-grade-name">${cls.name}</span>
-              <span class="class-grade-value">${cls.grade.toFixed(1)}% - ${cls.letter}</span>
+              <span class="class-grade-value">${Math.round(cls.grade)}% - ${cls.letter}</span>
             </div>
           `).join('');
         } else {
