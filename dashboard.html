@@ -188,14 +188,16 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       z-index: 1004;
       width: 90%;
-      max-width: 500px;
+      max-width: 600px;
+      max-height: 80vh;
       display: none;
       padding: 0;
       overflow: hidden;
+      flex-direction: column;
     }
     
     .comment-dialog[open] {
-      display: block;
+      display: flex;
     }
     
     .comment-header {
@@ -205,6 +207,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
     
     .comment-title {
@@ -235,10 +238,27 @@
     
     .comment-body {
       padding: 20px;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    
+    .comment-list {
+      margin-bottom: 20px;
+    }
+    
+    .comment-item {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 10px;
+    }
+    
+    .comment-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
     }
     
     .comment-text {
-      margin: 0 0 15px 0;
+      margin: 0 0 8px 0;
       line-height: 1.5;
       color: #444;
     }
@@ -247,6 +267,45 @@
       font-size: 0.85rem;
       color: #777;
       text-align: right;
+    }
+    
+    .no-comments {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 20px;
+    }
+    
+    .comment-form {
+      padding: 15px 20px;
+      border-top: 1px solid #e0e0e0;
+      background: #f9f9f9;
+      flex-shrink: 0;
+    }
+    
+    .comment-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: vertical;
+      min-height: 80px;
+      margin-bottom: 10px;
+      font-family: inherit;
+    }
+    
+    .comment-submit {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      float: right;
+    }
+    
+    .comment-submit:hover {
+      background: #0052a3;
     }
     
     .comment-dialog-overlay {
@@ -281,6 +340,15 @@
     
     .comment-btn:hover {
       background: #d1e9fa;
+    }
+    
+    .comment-count-badge {
+      background: #0066cc;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      margin-left: 4px;
     }
   </style>
 </head>
@@ -414,12 +482,17 @@
   <div id="comment-dialog-overlay" class="comment-dialog-overlay"></div>
   <div id="comment-dialog" class="comment-dialog" role="dialog" aria-labelledby="comment-dialog-title">
     <div class="comment-header">
-      <h3 id="comment-dialog-title" class="comment-title">Assignment Comment</h3>
+      <h3 id="comment-dialog-title" class="comment-title">Assignment Comments</h3>
       <button class="comment-close" aria-label="Close comment dialog">×</button>
     </div>
     <div class="comment-body">
-      <p id="comment-text" class="comment-text"></p>
-      <div id="comment-date" class="comment-date"></div>
+      <div id="comment-list" class="comment-list">
+        <!-- Comments will be inserted here -->
+      </div>
+    </div>
+    <div class="comment-form">
+      <textarea id="new-comment-input" class="comment-input" placeholder="Add a new comment..." aria-label="New comment"></textarea>
+      <button id="submit-comment-btn" class="comment-submit">Add Comment</button>
     </div>
   </div>
   
@@ -436,9 +509,14 @@
     const commentDialog = document.getElementById("comment-dialog");
     const commentOverlay = document.getElementById("comment-dialog-overlay");
     const commentCloseBtn = commentDialog.querySelector(".comment-close");
-    const commentText = document.getElementById("comment-text");
-    const commentDate = document.getElementById("comment-date");
+    const commentList = document.getElementById("comment-list");
+    const newCommentInput = document.getElementById("new-comment-input");
+    const submitCommentBtn = document.getElementById("submit-comment-btn");
     const commentDialogTitle = document.getElementById("comment-dialog-title");
+    
+    // Variables to track current assignment for comments
+    let currentAssignmentClassName = '';
+    let currentAssignmentIndex = -1;
     
     // Load OpenDyslexic font if needed
     if (!sessionStorage.getItem('dyslexiaFontLoaded')) {
@@ -474,26 +552,82 @@
     }
     
     // Comment dialog functions
-    function showCommentDialog(title, text, date) {
-      commentDialogTitle.textContent = `Comment: ${title}`;
-      commentText.textContent = text || "No comment provided.";
-      commentDate.textContent = date ? `Added on: ${date}` : "";
+    function showCommentDialog(className, assignmentIndex, assignmentTitle, comments) {
+      currentAssignmentClassName = className;
+      currentAssignmentIndex = assignmentIndex;
+      
+      commentDialogTitle.textContent = `Comments: ${assignmentTitle}`;
+      
+      // Clear previous comments
+      commentList.innerHTML = '';
+      
+      // Display comments or "no comments" message
+      if (comments && comments.length > 0) {
+        comments.forEach(comment => {
+          const commentItem = document.createElement('div');
+          commentItem.className = 'comment-item';
+          commentItem.innerHTML = `
+            <p class="comment-text">${comment.text}</p>
+            <div class="comment-date">${comment.date}</div>
+          `;
+          commentList.appendChild(commentItem);
+        });
+      } else {
+        commentList.innerHTML = '<div class="no-comments">No comments yet</div>';
+      }
+      
+      // Clear the input field
+      newCommentInput.value = '';
       
       commentDialog.setAttribute('open', 'true');
       commentOverlay.setAttribute('open', 'true');
       
-      // Focus on close button when dialog opens
-      setTimeout(() => commentCloseBtn.focus(), 100);
+      // Focus on comment input when dialog opens
+      setTimeout(() => newCommentInput.focus(), 100);
     }
     
     function closeCommentDialog() {
       commentDialog.removeAttribute('open');
       commentOverlay.removeAttribute('open');
+      currentAssignmentClassName = '';
+      currentAssignmentIndex = -1;
     }
     
-    // Global function to show comment (called from assignments.js)
-    window.showAssignmentComment = function(assignmentTitle, comment, date) {
-      showCommentDialog(assignmentTitle, comment, date);
+    function addNewComment() {
+      const commentText = newCommentInput.value.trim();
+      
+      if (!commentText) {
+        alert('Please enter a comment');
+        return;
+      }
+      
+      if (currentAssignmentClassName && currentAssignmentIndex >= 0) {
+        // Use the global function to add a comment
+        if (typeof window.addAssignmentComment === 'function') {
+          window.addAssignmentComment(
+            currentAssignmentClassName, 
+            currentAssignmentIndex, 
+            commentText
+          );
+          
+          // Refresh the comment list
+          const allAssignments = JSON.parse(localStorage.getItem("assignments") || "{}");
+          const assignment = allAssignments[currentAssignmentClassName][currentAssignmentIndex];
+          showCommentDialog(
+            currentAssignmentClassName, 
+            currentAssignmentIndex, 
+            assignment.title, 
+            assignment.comments
+          );
+        } else {
+          alert('Error: Comment functionality not available');
+        }
+      }
+    }
+    
+    // Global function to show comment dialog (called from assignments.js)
+    window.showAssignmentComments = function(className, assignmentIndex, assignmentTitle, comments) {
+      showCommentDialog(className, assignmentIndex, assignmentTitle, comments);
     };
     
     // Event listeners
@@ -501,6 +635,14 @@
     span.onclick = closeModal;
     commentCloseBtn.onclick = closeCommentDialog;
     commentOverlay.onclick = closeCommentDialog;
+    submitCommentBtn.onclick = addNewComment;
+    
+    // Allow submitting comment with Ctrl+Enter
+    newCommentInput.addEventListener('keydown', function(e) {
+      if (e.ctrlKey && e.key === 'Enter') {
+        addNewComment();
+      }
+    });
     
     // Close modals with Escape key
     function handleEscapeKey(e) {
