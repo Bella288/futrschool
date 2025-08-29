@@ -3,16 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Class Setup</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <title>Class Setup - GradeLine</title>
+  <meta name="description" content="Add and manage your classes in GradeLine to track grades and schedules">
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="icon" type="image/png" href="/assets/icons/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/assets/icons/favicon.svg" />
   <link rel="shortcut icon" href="/assets/icons/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png" />
-  <meta name="apple-mobile-web-app-title" content="F" />
+  <meta name="apple-mobile-web-app-title" content="GradeLine" />
   <link rel="manifest" href="/assets/icons/site.webmanifest" />
   <style>
+    /* Skip to main content link */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 6px;
+      background: #000;
+      color: white;
+      padding: 8px;
+      z-index: 10000;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      top: 0;
+    }
+    
     /* About button styles */
     .about-button {
       position: fixed;
@@ -27,6 +42,7 @@
     .about-button:hover {
       transform: scale(1.1);
     }
+    
     /* Modal styles */
     .modal {
       display: none;
@@ -59,18 +75,43 @@
       position: absolute;
       right: 15px;
       top: 10px;
+      background: none;
+      border: none;
     }
-    .close-button:hover {
+    .close-button:hover,
+    .close-button:focus {
       color: black;
+      outline: 2px solid #000;
+    }
+    
+    /* Focus styles for better accessibility */
+    a:focus,
+    button:focus,
+    input:focus {
+      outline: 2px solid #0066cc;
+      outline-offset: 2px;
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      a:focus,
+      button:focus,
+      input:focus {
+        outline: 3px solid #000000;
+        background-color: #ffff00;
+        color: #000000;
+      }
     }
   </style>
 </head>
 <body>
-  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
-       alt="About" class="about-button" title="about the creator and page" id="aboutBtn">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   
-  <nav class="navbar">
-    <a href="index.html" class="active">🏫 Class Setup</a>
+  <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
+       alt="About GradeLine" class="about-button" title="About the creator and page" id="aboutBtn">
+  
+  <nav class="navbar" aria-label="Main navigation">
+    <a href="index.html" class="active" aria-current="page">🏫 Class Setup</a>
     <a href="dashboard.html">📋 Dashboard</a>
     <a href="schedule.html">⏰ Schedule</a>
     <a href="overview.html">📊 Overview</a>
@@ -80,14 +121,14 @@
   </nav>
   
   <!-- About Modal -->
-  <div id="aboutModal" class="modal">
+  <div id="aboutModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <h2>About GradeLine</h2>
+      <button class="close-button" aria-label="Close dialog">&times;</button>
+      <h2 id="modalTitle">About GradeLine</h2>
       <p><strong>Creator:</strong> Bella Lawrence</p>
       <p><strong>YouTube:</strong> <a href="https://youtube.com/@SerialDesignationN-BL" target="_blank">youtube.com/@SerialDesignationN-BL</a></p>
       <p><strong>Instagram:</strong> @q_law09</p>
-      <p><strong>Email:</strong> barbar288.2021@gmail.com</p>
+      <p><strong>Email:</strong> <a href="mailto:barbar288.2021@gmail.com">barbar288.2021@gmail.com</a></p>
       <p><strong>Source Code:</strong> <a href="https://github.com/Bella288/futrschool" target="_blank">github.com/Bella288/futrschool</a></p>
       <hr>
       <p><strong>Why I made it:</strong> To help me and others keep track of their grades and schedules.</p>
@@ -99,15 +140,30 @@
   </div>
 
   <header><h1>📘 Add Classes</h1></header>
-  <main>
-    <form id="add-class-form">
-      <input type="text" id="class-name" placeholder="Class Name" required />
-      <input type="text" id="room-number" placeholder="Room Number" />
-      <input type="text" id="teacher-name" placeholder="Teacher Name" />
-      <input type="text" id="period" placeholder="Class Period" />
+  <main id="main-content" tabindex="-1">
+    <form id="add-class-form" aria-labelledby="form-heading">
+      <h2 id="form-heading" class="visually-hidden">Add a New Class</h2>
+      <div class="form-group">
+        <label for="class-name">Class Name</label>
+        <input type="text" id="class-name" placeholder="Class Name" required aria-required="true" />
+      </div>
+      <div class="form-group">
+        <label for="room-number">Room Number</label>
+        <input type="text" id="room-number" placeholder="Room Number" />
+      </div>
+      <div class="form-group">
+        <label for="teacher-name">Teacher Name</label>
+        <input type="text" id="teacher-name" placeholder="Teacher Name" />
+      </div>
+      <div class="form-group">
+        <label for="period">Class Period</label>
+        <input type="text" id="period" placeholder="Class Period" />
+      </div>
       <button type="submit">Add Class</button>
     </form>
-    <section id="class-list"></section>
+    <section id="class-list" aria-label="Your classes">
+      <h2 class="visually-hidden">Your Classes</h2>
+    </section>
   </main>
   <script src="js/classes.js"></script>
   <script>
@@ -115,20 +171,70 @@
     const modal = document.getElementById("aboutModal");
     const btn = document.getElementById("aboutBtn");
     const span = document.getElementsByClassName("close-button")[0];
+    const modalTitle = document.getElementById("modalTitle");
+    
+    // Function to trap focus inside modal
+    function trapFocus(element) {
+      const focusableElements = element.querySelectorAll(
+        'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+      );
+      const firstFocusable = focusableElements[0];
+      const lastFocusable = focusableElements[focusableElements.length - 1];
+      
+      element.addEventListener('keydown', function(e) {
+        if (e.key !== 'Tab') return;
+        
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable.focus();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable.focus();
+          }
+        }
+      });
+    }
     
     btn.onclick = function() {
       modal.style.display = "block";
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      trapFocus(modal);
+      // Focus on close button when modal opens
+      setTimeout(() => span.focus(), 100);
     }
     
-    span.onclick = function() {
+    function closeModal() {
       modal.style.display = "none";
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      btn.focus();
     }
+    
+    span.onclick = closeModal;
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.style.display === 'block') {
+        closeModal();
+      }
+    });
     
     window.onclick = function(event) {
       if (event.target == modal) {
-        modal.style.display = "none";
+        closeModal();
       }
     }
+    
+    // Add ARIA live region for dynamic content updates
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.className = 'visually-hidden';
+    document.body.appendChild(liveRegion);
   </script>
 </body>
 </html>
