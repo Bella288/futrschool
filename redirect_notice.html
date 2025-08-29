@@ -24,10 +24,10 @@
                 document.getElementById('to-link').textContent = decodeURIComponent(params.to);
                 document.getElementById('to-link').href = decodeURIComponent(params.to);
                 
-                // Redirect after 3 seconds
+                // Redirect after 5 seconds
                 setTimeout(() => {
                     window.location.href = decodeURIComponent(params.to);
-                }, 3000);
+                }, 5000);
             } else {
                 document.body.innerHTML = '<h1>Error: No redirect destination specified</h1>';
             }
@@ -69,13 +69,13 @@
         <div class="url-display">
             <a id="to-link" href="#">Loading...</a>
         </div>
-        <div class="countdown" id="countdown">Redirecting in 3 seconds...</div>
+        <div class="countdown" id="countdown">Redirecting in 5 seconds...</div>
         <p>If you are not redirected automatically, <a id="manual-link" href="#">click here</a>.</p>
     </div>
 
     <script>
         // Update countdown timer
-        let seconds = 3;
+        let seconds = 5;
         const countdownElement = document.getElementById('countdown');
         const countdownInterval = setInterval(() => {
             seconds--;
