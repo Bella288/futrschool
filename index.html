@@ -13,6 +13,13 @@
   <meta name="apple-mobile-web-app-title" content="GradeLine" />
   <link rel="manifest" href="/assets/icons/site.webmanifest" />
   <style>
+    /* Dyslexia-friendly font class */
+    .dyslexia-mode {
+      font-family: "OpenDyslexic", "Comic Sans MS", sans-serif;
+      letter-spacing: 0.05em;
+      line-height: 1.6;
+    }
+    
     /* Skip to main content link */
     .skip-link {
       position: absolute;
@@ -20,12 +27,40 @@
       left: 6px;
       background: #000;
       color: white;
-      padding: 8px;
+      padding: 8px 12px;
       z-index: 10000;
       text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
     }
     .skip-link:focus {
       top: 0;
+    }
+    
+    /* Dyslexia toggle button */
+    .dyslexia-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dyslexia-toggle:hover {
+      background: #0052a3;
+    }
+    .dyslexia-toggle:focus {
+      outline: 3px solid #ffbf47;
     }
     
     /* About button styles */
@@ -92,6 +127,39 @@
       outline-offset: 2px;
     }
     
+    /* Form styles */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    
     /* High contrast mode support */
     @media (prefers-contrast: high) {
       a:focus,
@@ -109,6 +177,10 @@
   
   <img src="https://raw.githubusercontent.com/Bella288/F1View/main/images/about_ico.png" 
        alt="About GradeLine" class="about-button" title="About the creator and page" id="aboutBtn">
+  
+  <button class="dyslexia-toggle" id="dyslexiaToggle" title="Toggle dyslexia-friendly font" aria-pressed="false">
+    D
+  </button>
   
   <nav class="navbar" aria-label="Main navigation">
     <a href="index.html" class="active" aria-current="page">🏫 Class Setup</a>
@@ -167,6 +239,41 @@
   </main>
   <script src="js/classes.js"></script>
   <script>
+    // Load dyslexia preference from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+      const isDyslexiaMode = localStorage.getItem('dyslexiaMode') === 'true';
+      const dyslexiaToggle = document.getElementById('dyslexiaToggle');
+      
+      if (isDyslexiaMode) {
+        document.body.classList.add('dyslexia-mode');
+        dyslexiaToggle.setAttribute('aria-pressed', 'true');
+      }
+      
+      // Set up dyslexia mode toggle
+      dyslexiaToggle.addEventListener('click', function() {
+        const isPressed = this.getAttribute('aria-pressed') === 'true';
+        this.setAttribute('aria-pressed', !isPressed);
+        document.body.classList.toggle('dyslexia-mode');
+        localStorage.setItem('dyslexiaMode', !isPressed);
+        
+        // Announce change for screen readers
+        const liveRegion = document.querySelector('[aria-live]') || createLiveRegion();
+        liveRegion.textContent = !isPressed ? 
+          'Dyslexia-friendly font enabled' : 
+          'Dyslexia-friendly font disabled';
+      });
+      
+      // Create a live region if it doesn't exist
+      function createLiveRegion() {
+        const region = document.createElement('div');
+        region.setAttribute('aria-live', 'polite');
+        region.setAttribute('aria-atomic', 'true');
+        region.className = 'visually-hidden';
+        document.body.appendChild(region);
+        return region;
+      }
+    });
+
     // Modal functionality
     const modal = document.getElementById("aboutModal");
     const btn = document.getElementById("aboutBtn");
