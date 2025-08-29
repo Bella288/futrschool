@@ -245,7 +245,7 @@
             const currentGrade = sortedScheme[i];
             
             // If average grade falls within this range, use this GPA
-            if (averageRound >= currentGrade.min && averageRound <= currentGrade.max) {
+            if (averageGrade >= currentGrade.min && averageGrade <= currentGrade.max) {
               gpa = parseFloat(currentGrade.gpa);
               break;
             }
