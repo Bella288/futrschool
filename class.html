@@ -3,36 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <link rel="stylesheet" href="styles.css">
-    <script>
-        // Parse the URL parameters to get the class name
-        function getQueryParam(name) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(name);
+    <title>Class Redirect</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
-        // Redirect to the dashboard with the class parameter
-        function redirectToDashboard() {
-            const className = getQueryParam('name');
-            if (className) {
-                // Encode the class name for URL safety
-                const encodedClassName = encodeURIComponent(className);
-                window.location.href = `redirect_notice.html?from=${encodeURIComponent(window.location.href)}&to=https://gradeline.netlify.app/dashboard?class=${encodedClassName}`;
-            } else {
-                // If no class name provided, redirect to home or show error
-                document.body.innerHTML = '<h1>Error: No class name specified</h1>';
-            }
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
         
-        // Execute redirect on page load
-        window.onload = redirectToDashboard;
-    </script>
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #4e54c8;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4e54c8;
+        }
+        
+        .status-card h2 {
+            color: #4e54c8;
+            margin-bottom: 15px;
+        }
+        
+        .status-card p {
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .class-details {
+            background: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .class-details h3 {
+            color: #4e54c8;
+            margin-bottom: 10px;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            width: 80px;
+            color: #495057;
+        }
+        
+        .detail-value {
+            flex: 1;
+            color: #212529;
+        }
+        
+        .countdown {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            color: #4e54c8;
+            margin: 20px 0;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .primary-btn {
+            background: #4e54c8;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background: #3f43a1;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .secondary-btn {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .secondary-btn:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            color: #dc3545;
+            text-align: center;
+            font-weight: 600;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 8px;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .success {
+            color: #198754;
+            text-align: center;
+            font-weight: 600;
+            margin: 20px 0;
+            padding: 15px;
+            background: #d1e7dd;
+            border-radius: 8px;
+            border-left: 5px solid #198754;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(78, 84, 200, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid #4e54c8;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 14px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
 </head>
 <body>
-    <div class="error-content">
-        <h1>Redirecting...</h1>
-        <h2>Please wait while we take you to your class dashboard.</h2>
+    <div class="container">
+        <header>
+            <h1>GradeLine Class Redirect</h1>
+            <p>Access your class information quickly and securely</p>
+        </header>
+        
+        <div class="content">
+            <div class="status-card">
+                <h2>Redirect Status</h2>
+                <p>We're checking if the requested class exists in your schedule...</p>
+            </div>
+            
+            <div id="class-info">
+                <!-- Class information will be displayed here -->
+            </div>
+            
+            <div id="status-message">
+                <!-- Status messages will be displayed here -->
+            </div>
+            
+            <div class="countdown" id="countdown">
+                <!-- Countdown will be displayed here -->
+            </div>
+            
+            <div class="buttons">
+                <button id="redirect-btn" class="primary-btn">Continue to Dashboard</button>
+                <button id="cancel-btn" class="secondary-btn">Cancel</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>GradeLine Student Portal &copy; 2023 | Secure Redirect System</p>
+        </footer>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const classInfo = document.getElementById('class-info');
+            const statusMessage = document.getElementById('status-message');
+            const countdown = document.getElementById('countdown');
+            const redirectBtn = document.getElementById('redirect-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            // Get class name from URL parameters
+            function getQueryParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+            
+            // Check if class exists in localStorage
+            function checkClassExists(className) {
+                try {
+                    const classesData = localStorage.getItem('classes');
+                    if (!classesData) return null;
+                    
+                    const classes = JSON.parse(classesData);
+                    return classes.find(cls => cls.name === className) || null;
+                } catch (error) {
+                    console.error('Error reading from localStorage:', error);
+                    return null;
+                }
+            }
+            
+            // Perform redirect to dashboard
+            function redirectToDashboard(className) {
+                const encodedClassName = encodeURIComponent(className);
+                window.location.href = `https://gradeline.netlify.app/dashboard?class=${encodedClassName}`;
+            }
+            
+            // Update countdown timer
+            function startCountdown(seconds, className) {
+                let remaining = seconds;
+                
+                const countdownInterval = setInterval(() => {
+                    countdown.textContent = `Redirecting in ${remaining} second${remaining !== 1 ? 's' : ''}...`;
+                    
+                    if (remaining <= 0) {
+                        clearInterval(countdownInterval);
+                        redirectToDashboard(className);
+                    }
+                    
+                    remaining--;
+                }, 1000);
+            }
+            
+            // Initialize the redirect process
+            function init() {
+                const className = getQueryParam('name');
+                
+                if (!className) {
+                    statusMessage.innerHTML = '<div class="error">Error: No class name specified in URL</div>';
+                    countdown.style.display = 'none';
+                    redirectBtn.style.display = 'none';
+                    return;
+                }
+                
+                // Check if class exists
+                const classData = checkClassExists(className);
+                
+                if (classData) {
+                    // Class found - display info and start countdown
+                    classInfo.innerHTML = `
+                        <div class="class-details">
+                            <h3>Class Found</h3>
+                            <div class="detail-row">
+                                <span class="detail-label">Name:</span>
+                                <span class="detail-value">${classData.name}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Teacher:</span>
+                                <span class="detail-value">${classData.teacher}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Room:</span>
+                                <span class="detail-value">${classData.room}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Period:</span>
+                                <span class="detail-value">${classData.period}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    statusMessage.innerHTML = '<div class="success">Class verified! Redirecting to your dashboard...</div>';
+                    startCountdown(5, className);
+                    
+                    // Set up redirect button
+                    redirectBtn.addEventListener('click', () => {
+                        redirectToDashboard(className);
+                    });
+                } else {
+                    // Class not found
+                    classInfo.innerHTML = '';
+                    statusMessage.innerHTML = `
+                        <div class="error">
+                            Class "${className}" not found in your schedule.
+                            Please check the class name or update your schedule.
+                        </div>
+                    `;
+                    countdown.style.display = 'none';
+                    redirectBtn.textContent = 'Go to Dashboard';
+                    redirectBtn.addEventListener('click', () => {
+                        window.location.href = 'https://gradeline.netlify.app/dashboard';
+                    });
+                }
+                
+                // Set up cancel button
+                cancelBtn.addEventListener('click', () => {
+                    window.location.href = 'https://gradeline.netlify.app/dashboard';
+                });
+            }
+            
+            // Start the process
+            init();
+        });
+    </script>
 </body>
 </html>
