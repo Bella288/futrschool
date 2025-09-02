@@ -559,7 +559,7 @@ function updateClassGrade(className) {
   
   const weights = JSON.parse(localStorage.getItem("categoryWeights") || "{}")[className] || {};
   const assignments = JSON.parse(localStorage.getItem("assignments") || "{}")[className] || [];
-
+  const pointsEarned = (a.grade / 100) * a.points;
   const categoryTotals = {};
   const categoryEarned = {};
 
@@ -625,6 +625,7 @@ function calculateClassGrade(className) {
   // Check if class still exists
   const classes = JSON.parse(localStorage.getItem("classes") || "[]");
   const classExists = classes.some(c => c.name === className);
+  const pointsEarned = (a.grade / 100) * a.points;
   
   if (!classExists) {
     return 0; // Return 0 if class has been deleted
