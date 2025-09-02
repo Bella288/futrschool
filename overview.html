@@ -63,6 +63,50 @@
       color: black;
     }
     
+    /* GPA Override Modal */
+    .gpa-override-modal {
+      display: none;
+      position: fixed;
+      z-index: 1003;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .gpa-override-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+    .gpa-override-content input {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .gpa-override-content button {
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .gpa-override-content .save-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .gpa-override-content .cancel-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    
     /* Overview specific styles */
     .stats-grid {
       display: grid;
@@ -77,6 +121,7 @@
       padding: 1.5rem;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       text-align: center;
+      position: relative;
     }
     
     .stat-card h3 {
@@ -94,6 +139,22 @@
     .stat-description {
       color: #666;
       margin: 0;
+    }
+    
+    .override-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .override-btn:hover {
+      background: #e0e0e0;
     }
     
     .class-grades {
@@ -124,6 +185,12 @@
       text-align: center;
       padding: 2rem;
       color: #666;
+    }
+    
+    .gpa-override-note {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 5px;
     }
   </style>
 </head>
@@ -160,6 +227,19 @@
     </div>
   </div>
 
+  <!-- GPA Override Modal -->
+  <div id="gpaOverrideModal" class="gpa-override-modal">
+    <div class="gpa-override-content">
+      <h3>Override GPA</h3>
+      <p>Current average: <span id="current-average-display">0%</span></p>
+      <input type="number" id="gpa-override-input" min="0" max="4.5" step="0.001" placeholder="Enter GPA (0.000 - 4.500)">
+      <div>
+        <button class="save-btn" id="save-gpa-override">Save</button>
+        <button class="cancel-btn" id="cancel-gpa-override">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <header>
     <h1>📊 Overview</h1>
     <p>Your academic performance at a glance!</p>
@@ -183,12 +263,20 @@
     document.addEventListener('DOMContentLoaded', () => {
       const statsContainer = document.getElementById('stats-container');
       const classGradesContainer = document.getElementById('class-grades-container');
+      const gpaOverrideModal = document.getElementById('gpaOverrideModal');
+      const gpaOverrideInput = document.getElementById('gpa-override-input');
+      const currentAverageDisplay = document.getElementById('current-average-display');
+      const saveGpaOverrideBtn = document.getElementById('save-gpa-override');
+      const cancelGpaOverrideBtn = document.getElementById('cancel-gpa-override');
+      
+      let currentAverageGrade = 0;
       
       // Calculate and display overview statistics
       function updateOverview() {
         const classes = JSON.parse(localStorage.getItem('classes') || '[]');
         const assignments = JSON.parse(localStorage.getItem('assignments') || '{}');
         const gradingScheme = JSON.parse(localStorage.getItem('gradingScheme') || '[]');
+        const gpaOverrides = JSON.parse(localStorage.getItem('gpaOverrides') || '{}');
         
         // Calculate missing assignments (past due with no grade)
         let missingAssignments = 0;
@@ -230,12 +318,21 @@
           }
         });
         
-        const averageGrade = classCount > 0 ? totalGrade / classCount : 0;
-        const averageRound = Math.round(averageGrade * 100) / 100; // Round to 2 decimal places for accuracy
+        currentAverageGrade = classCount > 0 ? totalGrade / classCount : 0;
+        const averageRound = Math.round(currentAverageGrade * 100) / 100; // Round to 2 decimal places for accuracy
         const averageLetterGrade = getLetterGrade(averageRound);
         
-        // Calculate GPA using interpolation
-        let gpa = calculateGPA(averageRound, gradingScheme);
+        // Check if we have an override for this average grade
+        let gpa;
+        const overrideKey = averageRound.toFixed(2);
+        
+        if (gpaOverrides[overrideKey]) {
+          // Use the overridden GPA value
+          gpa = parseFloat(gpaOverrides[overrideKey]);
+        } else {
+          // Calculate GPA using interpolation
+          gpa = calculateGPA(averageRound, gradingScheme);
+        }
         
         // Update stats display
         statsContainer.innerHTML = `
@@ -250,11 +347,24 @@
             <p class="stat-description">${averageLetterGrade}</p>
           </div>
           <div class="stat-card">
-            <h3>📊 GPA</h3>
+            <h3>📊 GPA ${gpaOverrides[overrideKey] ? '(Overridden)' : ''}</h3>
             <div class="stat-value">${gpa.toFixed(3)}</div>
-            <p class="stat-description">Based on your grading scheme</p>
+            <p class="stat-description">Based on ${gpaOverrides[overrideKey] ? 'override' : 'your grading scheme'}</p>
+            ${gpaOverrides[overrideKey] ? 
+              `<p class="gpa-override-note">Override set for ${overrideKey}% average</p>` : 
+              ''}
+            <button class="override-btn" data-average="${averageRound.toFixed(2)}">Override</button>
           </div>
         `;
+        
+        // Add event listener to the override button
+        const overrideBtn = document.querySelector('.override-btn');
+        if (overrideBtn) {
+          overrideBtn.addEventListener('click', function() {
+            const average = parseFloat(this.getAttribute('data-average'));
+            showGpaOverrideModal(average);
+          });
+        }
         
         // Update class grades display
         if (classGrades.length > 0) {
@@ -267,6 +377,46 @@
         } else {
           classGradesContainer.innerHTML = '<div class="no-data">❌ No graded assignments found</div>';
         }
+      }
+      
+      // Show GPA override modal
+      function showGpaOverrideModal(average) {
+        currentAverageDisplay.textContent = average.toFixed(2) + '%';
+        gpaOverrideInput.value = '';
+        gpaOverrideInput.setAttribute('data-average', average);
+        gpaOverrideModal.style.display = 'block';
+      }
+      
+      // Hide GPA override modal
+      function hideGpaOverrideModal() {
+        gpaOverrideModal.style.display = 'none';
+      }
+      
+      // Save GPA override
+      function saveGpaOverride() {
+        const average = parseFloat(gpaOverrideInput.getAttribute('data-average'));
+        const gpaValue = parseFloat(gpaOverrideInput.value);
+        
+        if (isNaN(gpaValue) || gpaValue < 0 || gpaValue > 4.5) {
+          alert('Please enter a valid GPA between 0.000 and 4.500');
+          return;
+        }
+        
+        // Get existing overrides
+        const gpaOverrides = JSON.parse(localStorage.getItem('gpaOverrides') || '{}');
+        
+        // Save the override for this specific average
+        const averageKey = average.toFixed(2);
+        gpaOverrides[averageKey] = gpaValue.toFixed(3);
+        
+        // Save back to localStorage
+        localStorage.setItem('gpaOverrides', JSON.stringify(gpaOverrides));
+        
+        // Update the display
+        updateOverview();
+        
+        // Hide the modal
+        hideGpaOverrideModal();
       }
       
       // Calculate GPA using interpolation between grade ranges
@@ -354,6 +504,17 @@
         
         return "❌ N/A";
       }
+      
+      // Event listeners for GPA override modal
+      saveGpaOverrideBtn.addEventListener('click', saveGpaOverride);
+      cancelGpaOverrideBtn.addEventListener('click', hideGpaOverrideModal);
+      
+      // Close modal when clicking outside
+      window.addEventListener('click', function(event) {
+        if (event.target === gpaOverrideModal) {
+          hideGpaOverrideModal();
+        }
+      });
       
       // Initial update
       updateOverview();
